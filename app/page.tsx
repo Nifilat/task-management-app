@@ -1,9 +1,12 @@
-import Navbar from '@/components/navbar';
+import Navbar from '@/components/layout/Navbar';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 export default function Home() {
   return (
-    <div className="font-sans">
-      <Navbar />
-    </div>
+    <ProtectedRoute>
+      <div className="font-sans">
+        <Navbar />
+      </div>
+    </ProtectedRoute>
   );
 }
