@@ -1,5 +1,5 @@
-import type { StatsCardProps } from "./types";
-import { Card, CardHeader, CardTitle, CardDescription } from "../ui/card";
+import type { StatsCardProps } from './types';
+import { Card, CardHeader, CardTitle, CardDescription } from '../ui/card';
 
 const SingleStatsCard = ({ title, value, icon: Icon }: StatsCardProps) => {
   return (
