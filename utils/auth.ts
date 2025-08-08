@@ -7,6 +7,7 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { auth, db, storage } from '@/config/firebase';
 import { LoginSchema, RegisterSchema } from './validation/authSchema';
+import { testFirestoreConnection, checkFirestoreRules } from './firestore-debug';
 
 // Utility: Convert image file to base64
 export const fileToBase64 = (file: File): Promise<string> => {
@@ -66,11 +67,22 @@ export const registerUser = async (values: RegisterSchema, profileImageFile?: Fi
   try {
     console.log('Starting user registration...', { email: values.email });
     
+    // Check Firestore rules first
+    checkFirestoreRules();
+    
     // Create user with email and password
     const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
     const user = userCredential.user;
     
     console.log('User created in Firebase Auth:', user.uid);
+    
+    // Test Firestore connection with the new user
+    console.log('Testing Firestore connection...');
+    const firestoreTest = await testFirestoreConnection(user.uid);
+    
+    if (!firestoreTest) {
+      throw new Error('Firestore connection test failed. Please check your security rules.');
+    }
 
     let profilePhotoURL = '';
 
@@ -90,19 +102,7 @@ export const registerUser = async (values: RegisterSchema, profileImageFile?: Fi
       profilePhotoURL = getAvatarUrl(values.firstName, values.lastName);
     }
 
-    // Update Firebase Auth profile
-    try {
-      await updateProfile(user, {
-        displayName: `${values.firstName} ${values.lastName}`,
-        photoURL: profilePhotoURL,
-      });
-      console.log('Firebase Auth profile updated');
-    } catch (profileError) {
-      console.error('Failed to update Firebase Auth profile:', profileError);
-      // Continue with registration even if profile update fails
-    }
-
-    // Save user data to Firestore
+    // Save user data to Firestore FIRST
     const userData = {
       uid: user.uid,
       firstName: values.firstName,
@@ -115,13 +115,34 @@ export const registerUser = async (values: RegisterSchema, profileImageFile?: Fi
 
     console.log('Saving user data to Firestore:', userData);
     
-    await setDoc(doc(db, 'users', user.uid), userData);
+    try {
+      await setDoc(doc(db, 'users', user.uid), userData);
+      console.log('User data saved to Firestore successfully');
+    } catch (firestoreError) {
+      console.error('Firestore save error:', firestoreError);
+      console.error('Error code:', firestoreError.code);
+      console.error('Error message:', firestoreError.message);
+      throw new Error(`Failed to save user data: ${firestoreError.message}`);
+    }
+
+    // Update Firebase Auth profile AFTER Firestore save
+    try {
+      await updateProfile(user, {
+        displayName: `${values.firstName} ${values.lastName}`,
+        photoURL: profilePhotoURL,
+      });
+      console.log('Firebase Auth profile updated');
+    } catch (profileError) {
+      console.error('Failed to update Firebase Auth profile:', profileError);
+      // Don't throw error here as Firestore data is already saved
+    }
     
-    console.log('User data saved to Firestore successfully');
 
     return userCredential;
   } catch (error: any) {
     console.error('Registration error:', error);
+    console.error('Error code:', error.code);
+    console.error('Error message:', error.message);
     
     // Provide user-friendly error messages
     switch (error.code) {
@@ -134,7 +155,9 @@ export const registerUser = async (values: RegisterSchema, profileImageFile?: Fi
       case 'auth/weak-password':
         throw new Error('Password is too weak. Please choose a stronger password');
       case 'permission-denied':
-        throw new Error('Permission denied. Please check your Firestore security rules');
+        throw new Error('Permission denied. Please check your Firestore security rules. Make sure authenticated users can write to the users collection.');
+      case 'unavailable':
+        throw new Error('Firestore is currently unavailable. Please try again later.');
       default:
         throw new Error(error.message || 'Registration failed. Please try again');
     }

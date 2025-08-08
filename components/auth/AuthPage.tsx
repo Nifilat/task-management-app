@@ -221,7 +221,15 @@ const AuthPage: React.FC = () => {
     setAuthError('');
 
     try {
+      console.log('Starting registration with values:', {
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        hasImage: !!selectedImage
+      });
+      
       await registerUser(values, selectedImage || undefined);
+      console.log('Registration completed successfully');
     } catch (error: any) {
       console.error('Registration error:', error);
       setAuthError(error.message || 'Registration failed. Please try again.');

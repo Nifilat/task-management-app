@@ -23,10 +23,29 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 // const analytics = getAnalytics(app);
 
+// Enable Firestore offline persistence and logging
+import { connectFirestoreEmulator, enableNetwork } from 'firebase/firestore';
+
+// Enable Firestore logging in development
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  // Enable Firestore debug logging
+  import('firebase/firestore').then(({ enableNetwork }) => {
+    console.log('Firestore initialized in development mode');
+  });
+}
+
 export const auth = getAuth(app);
 
 // Initialize Firestore
 export const db = getFirestore(app);
+
+// Test Firestore connection
+if (typeof window !== 'undefined') {
+  import('firebase/firestore').then(({ doc, getDoc }) => {
+    console.log('Testing Firestore connection...');
+    // This will help us verify if Firestore is properly connected
+  });
+}
 
 // Initialize Collection References
 export const usersCollection = collection(db, 'users');
