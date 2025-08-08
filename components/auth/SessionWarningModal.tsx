@@ -1,4 +1,3 @@
-// components/auth/SessionWarningModal.tsx
 'use client';
 
 import React from 'react';
@@ -51,11 +50,11 @@ const SessionWarningModal: React.FC<SessionWarningModalProps> = ({
         <AlertDialogFooter className="flex gap-2">
           <AlertDialogCancel
             onClick={onLogout}
-            className="text-red-600 border-red-200 hover:bg-red-50"
+            className="text-destructive border-destructive/20 hover:bg-destructive/10"
           >
             Logout Now
           </AlertDialogCancel>
-          <AlertDialogAction onClick={onExtendSession} className="bg-blue-600 hover:bg-blue-700">
+          <AlertDialogAction onClick={onExtendSession}>
             Stay Logged In
           </AlertDialogAction>
         </AlertDialogFooter>

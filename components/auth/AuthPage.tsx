@@ -67,13 +67,13 @@ const AuthForm: React.FC<AuthFormProps> = ({
               name={gridField.name}
               render={({ field: formField }) => (
                 <FormItem>
-                  <FormLabel>{gridField.label}</FormLabel>
+                  <FormLabel className="text-foreground">{gridField.label}</FormLabel>
                   <FormControl>
                     <Input
                       {...formField}
                       type={gridField.type}
                       placeholder={gridField.placeholder}
-                      className={gridField.className}
+                      className="bg-background border-border focus:border-ring focus:ring-ring/50"
                     />
                   </FormControl>
                   <FormMessage />
@@ -98,13 +98,13 @@ const AuthForm: React.FC<AuthFormProps> = ({
         name={field.name}
         render={({ field: formField }) => (
           <FormItem>
-            <FormLabel>{field.label}</FormLabel>
+            <FormLabel className="text-foreground">{field.label}</FormLabel>
             <FormControl>
               <Input
                 {...formField}
                 type={field.type}
                 placeholder={field.placeholder}
-                className={field.className}
+                className="bg-background border-border focus:border-ring focus:ring-ring/50"
               />
             </FormControl>
             <FormMessage />
@@ -126,16 +126,16 @@ const AuthForm: React.FC<AuthFormProps> = ({
                   {imagePreview ? (
                     <AvatarImage src={imagePreview} alt="Profile preview" />
                   ) : (
-                    <AvatarFallback className="bg-gray-200">
-                      <User className="h-8 w-8 text-gray-400" />
+                    <AvatarFallback className="bg-muted">
+                      <User className="h-8 w-8 text-muted-foreground" />
                     </AvatarFallback>
                   )}
                 </Avatar>
                 <label
                   htmlFor="profile-image"
-                  className="absolute -bottom-1 -right-1 bg-blue-600 rounded-full p-1.5 cursor-pointer hover:bg-blue-700 transition-colors"
+                  className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1.5 cursor-pointer hover:bg-primary/90 transition-colors"
                 >
-                  <Upload className="h-3 w-3 text-white" />
+                  <Upload className="h-3 w-3 text-primary-foreground" />
                   <input
                     id="profile-image"
                     type="file"
@@ -145,7 +145,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                   />
                 </label>
               </div>
-              <p className="text-xs text-gray-500">Click to upload profile photo (optional)</p>
+              <p className="text-xs text-muted-foreground">Click to upload profile photo (optional)</p>
             </div>
           )}
 
@@ -153,10 +153,10 @@ const AuthForm: React.FC<AuthFormProps> = ({
           {config.fields.map((field, index) => renderField(field, index))}
 
           {/* Error Display */}
-          {error && <div className="text-red-600 text-sm text-center">{error}</div>}
+          {error && <div className="text-destructive text-sm text-center">{error}</div>}
 
           {/* Submit Button */}
-          <Button type="submit" className="w-full bg-blue-600 hover:bg-blue-700" disabled={loading}>
+          <Button type="submit" className="w-full" disabled={loading}>
             {loading ? config.loadingText : config.submitText}
           </Button>
         </form>
@@ -197,6 +197,7 @@ const AuthPage: React.FC = () => {
         setImagePreview(base64);
       } catch (error) {
         console.error('Error converting file to base64:', error);
+        setAuthError('Failed to process image. Please try again.');
       }
     }
   };
@@ -208,7 +209,8 @@ const AuthPage: React.FC = () => {
     try {
       await loginUser(values);
     } catch (error: any) {
-      setAuthError(error.message || 'Login failed');
+      console.error('Login error:', error);
+      setAuthError(error.message || 'Login failed. Please check your credentials.');
     } finally {
       setLoading(false);
     }
@@ -221,17 +223,18 @@ const AuthPage: React.FC = () => {
     try {
       await registerUser(values, selectedImage || undefined);
     } catch (error: any) {
-      setAuthError(error.message || 'Registration failed');
+      console.error('Registration error:', error);
+      setAuthError(error.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md shadow-xl">
+    <div className="min-h-screen flex items-center justify-center bg-background p-4">
+      <Card className="w-full max-w-md shadow-lg border-border">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center text-gray-800">
+          <CardTitle className="text-2xl font-bold text-center text-foreground">
             Task Manager
           </CardTitle>
         </CardHeader>

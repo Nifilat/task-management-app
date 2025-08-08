@@ -1,4 +1,3 @@
-import { Upload, User } from 'lucide-react';
 import { FormConfig } from './types';
 
 export const authFormConfigs: Record<'login' | 'register', FormConfig> = {
@@ -12,14 +11,12 @@ export const authFormConfigs: Record<'login' | 'register', FormConfig> = {
         label: 'Email',
         type: 'email',
         placeholder: 'you@example.com',
-        className: 'focus:ring-blue-500 focus:border-blue-500',
       },
       {
         name: 'password',
         label: 'Password',
         type: 'password',
         placeholder: 'Your password',
-        className: 'focus:ring-blue-500 focus:border-blue-500',
       },
     ],
   },
@@ -34,7 +31,6 @@ export const authFormConfigs: Record<'login' | 'register', FormConfig> = {
         label: 'First Name',
         type: 'text',
         placeholder: 'John',
-        className: 'focus:ring-blue-500 focus:border-blue-500',
         gridCols: 'grid-cols-2',
       },
       {
@@ -42,7 +38,6 @@ export const authFormConfigs: Record<'login' | 'register', FormConfig> = {
         label: 'Last Name',
         type: 'text',
         placeholder: 'Doe',
-        className: 'focus:ring-blue-500 focus:border-blue-500',
         gridCols: 'grid-cols-2',
       },
       {
@@ -50,21 +45,18 @@ export const authFormConfigs: Record<'login' | 'register', FormConfig> = {
         label: 'Email',
         type: 'email',
         placeholder: 'you@example.com',
-        className: 'focus:ring-blue-500 focus:border-blue-500',
       },
       {
         name: 'password',
         label: 'Password',
         type: 'password',
         placeholder: 'Create a password',
-        className: 'focus:ring-blue-500 focus:border-blue-500',
       },
       {
         name: 'confirmPassword',
         label: 'Confirm Password',
         type: 'password',
         placeholder: 'Confirm your password',
-        className: 'focus:ring-blue-500 focus:border-blue-500',
       },
     ],
   },

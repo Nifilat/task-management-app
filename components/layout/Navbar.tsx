@@ -21,8 +21,7 @@ import { LogOut, Settings, User } from 'lucide-react';
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const { showWarning, timeRemaining, formatTime, extendSession, dismissWarning } =
-    useSessionTimeout();
+  const { showWarning, timeRemaining, formatTime, extendSession } = useSessionTimeout();
 
   const handleLogout = async () => {
     try {
@@ -37,8 +36,6 @@ export default function Navbar() {
   }
 
   const fullName = `${user.firstName} ${user.lastName}`.trim() || user.email;
-  console.log(user.firstName);
-  console.log(fullName);
   const avatarUrl = user.profilePhoto || getAvatarUrl(user.firstName, user.lastName);
 
   // Generate initials fallback
@@ -51,7 +48,7 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="font-sans relative w-full h-[92px] overflow-hidden flex items-center justify-between px-6 border-b">
+      <div className="font-sans relative w-full h-[92px] overflow-hidden flex items-center justify-between px-6 border-b border-border">
         <AppNameLogo />
         <div className="flex items-center gap-3 justify-center">
           <Button>Add Task</Button>
@@ -60,7 +57,7 @@ export default function Navbar() {
           {/* User Dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Avatar className="cursor-pointer hover:ring-2 hover:ring-blue-500 transition-all">
+              <Avatar className="cursor-pointer hover:ring-2 hover:ring-ring transition-all">
                 <AvatarImage
                   src={avatarUrl}
                   alt={fullName}
@@ -69,7 +66,7 @@ export default function Navbar() {
                     // The AvatarFallback will automatically show if image fails
                   }}
                 />
-                <AvatarFallback className="bg-blue-600 text-white font-semibold">
+                <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
                   {initials}
                 </AvatarFallback>
               </Avatar>
@@ -95,7 +92,7 @@ export default function Navbar() {
 
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem className="text-red-600 focus:text-red-600" onClick={handleLogout}>
+              <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>

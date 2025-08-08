@@ -3,7 +3,6 @@ export interface FormFieldConfig {
   label: string;
   type: string;
   placeholder: string;
-  className?: string;
   gridCols?: string;
 }
 
