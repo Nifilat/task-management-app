@@ -4,8 +4,9 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User as FirebaseUser, onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
-import type { AuthUser, AuthContextType, AuthProviderProps } from '@/types/auth';
+import type { AuthUser, AuthContextType } from '@/types/auth';
 import { getAvatarUrl } from '@/utils/auth';
+import { AuthProviderProps } from '@/types/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -40,12 +41,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const userData = userDoc.exists() ? userDoc.data() : {};
 
           const firstName = userData.firstName ?? firebaseUser.displayName?.split(' ')[0] ?? '';
-          const lastName = userData.lastName ?? firebaseUser.displayName?.split(' ').slice(1).join(' ') ?? '';
+          const lastName =
+            userData.lastName ?? firebaseUser.displayName?.split(' ').slice(1).join(' ') ?? '';
           const email = firebaseUser.email ?? userData.email ?? '';
           const profilePhoto =
-            userData.profilePhoto ??
-            firebaseUser.photoURL ??
-            getAvatarUrl(firstName, lastName);
+            userData.profilePhoto ?? firebaseUser.photoURL ?? getAvatarUrl(firstName, lastName);
 
           const finalUser: AuthUser = {
             uid: firebaseUser.uid,

@@ -12,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuItem,
 } from '../ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { Avatar, AvatarImage } from '../ui/avatar';
 import { useAuth } from '@/contexts/AuthContext';
 import { getAvatarUrl } from '@/utils/auth';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
@@ -32,19 +32,11 @@ export default function Navbar() {
   };
 
   if (!user) {
-    return null; // Don't show navbar if user is not authenticated
+    return null;
   }
 
   const fullName = `${user.firstName} ${user.lastName}`.trim() || user.email;
   const avatarUrl = user.profilePhoto || getAvatarUrl(user.firstName, user.lastName);
-
-  // Generate initials fallback
-  const initials =
-    user.firstName && user.lastName
-      ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase()
-      : user.email
-        ? user.email.substring(0, 2).toUpperCase()
-        : 'U';
 
   return (
     <>
@@ -61,14 +53,10 @@ export default function Navbar() {
                 <AvatarImage
                   src={avatarUrl}
                   alt={fullName}
-                  onError={e => {
+                  onError={() => {
                     console.error('Avatar image failed to load:', avatarUrl);
-                    // The AvatarFallback will automatically show if image fails
                   }}
                 />
-                <AvatarFallback className="bg-primary text-primary-foreground font-semibold">
-                  {initials}
-                </AvatarFallback>
               </Avatar>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end">
@@ -101,7 +89,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Session Warning Modal */}
       <SessionWarningModal
         isOpen={showWarning}
         timeRemaining={timeRemaining}

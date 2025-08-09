@@ -57,9 +57,13 @@ const AuthPage: React.FC = () => {
 
     try {
       await loginUser(values);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Login error:', error);
-      setAuthError(error.message || 'Login failed. Please check your credentials.');
+      if (error instanceof Error) {
+        setAuthError(error.message || 'Login failed. Please check your credentials.');
+      } else {
+        setAuthError('Login failed. Please check your credentials.');
+      }
     } finally {
       setLoading(false);
     }
@@ -74,14 +78,18 @@ const AuthPage: React.FC = () => {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
-        hasImage: !!selectedImage
+        hasImage: !!selectedImage,
       });
-      
+
       await registerUser(values, selectedImage || undefined);
       console.log('Registration completed successfully');
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('Registration error:', error);
-      setAuthError(error.message || 'Registration failed. Please try again.');
+      if (error instanceof Error) {
+        setAuthError(error.message || 'Registration failed. Please try again.');
+      } else {
+        setAuthError('Registration failed. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -91,9 +99,7 @@ const AuthPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
-            Task Manager
-          </CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Task Manager</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">

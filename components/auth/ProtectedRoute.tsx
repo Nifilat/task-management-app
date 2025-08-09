@@ -3,10 +3,7 @@
 import React from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import AuthPage from './AuthPage';
-
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-}
+import { ProtectedRouteProps } from './types';
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuth();

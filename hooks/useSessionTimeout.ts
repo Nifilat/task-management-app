@@ -32,7 +32,7 @@ export const useSessionTimeout = ({
 
     warningTimer.current = setTimeout(() => {
       setShowWarning(true);
-      setTimeRemaining(warningTime * 60); // seconds
+      setTimeRemaining(warningTime * 60);
 
       countdownTimer.current = setInterval(() => {
         setTimeRemaining(prev => {

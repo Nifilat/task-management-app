@@ -21,18 +21,16 @@ const AuthForm: React.FC<AuthFormProps> = ({
   onSubmit,
   loading,
   error,
-  selectedImage,
   imagePreview,
   onImageSelect,
 }) => {
-  const renderField = (field: any, index: number) => {
+  const renderField = (field: AuthFormProps['config']['fields'][number], index: number) => {
     const isGridField =
       field.gridCols &&
       index < config.fields.length - 1 &&
       config.fields[index + 1]?.gridCols === field.gridCols;
 
     if (isGridField && index % 2 === 0) {
-      // Render two fields in a grid
       const nextField = config.fields[index + 1];
       return (
         <div key={`grid-${index}`} className="grid grid-cols-2 gap-4">
@@ -60,12 +58,10 @@ const AuthForm: React.FC<AuthFormProps> = ({
       );
     }
 
-    // Skip the second field in grid as it's already rendered
     if (field.gridCols && index > 0 && config.fields[index - 1]?.gridCols === field.gridCols) {
       return null;
     }
 
-    // Render single field
     return (
       <FormField
         key={field.name}
@@ -75,11 +71,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
           <FormItem>
             <FormLabel>{field.label}</FormLabel>
             <FormControl>
-              <Input
-                {...formField}
-                type={field.type}
-                placeholder={field.placeholder}
-              />
+              <Input {...formField} type={field.type} placeholder={field.placeholder} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -119,7 +111,9 @@ const AuthForm: React.FC<AuthFormProps> = ({
                   />
                 </label>
               </div>
-              <p className="text-xs text-muted-foreground">Click to upload profile photo (optional)</p>
+              <p className="text-xs text-muted-foreground">
+                Click to upload profile photo (optional)
+              </p>
             </div>
           )}
 

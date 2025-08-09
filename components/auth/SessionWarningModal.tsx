@@ -47,9 +47,7 @@ const SessionWarningModal: React.FC<SessionWarningModalProps> = ({
           >
             Logout Now
           </AlertDialogCancel>
-          <AlertDialogAction onClick={onExtendSession}>
-            Stay Logged In
-          </AlertDialogAction>
+          <AlertDialogAction onClick={onExtendSession}>Stay Logged In</AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
