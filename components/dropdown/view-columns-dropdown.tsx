@@ -1,63 +1,50 @@
-'use client';
+'use client'
+import { Settings2 } from 'lucide-react'
+import { Button } from '../ui/button'
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '../ui/dropdown-menu'
+import { Task } from '@/data/types'
+import { Table } from '@tanstack/react-table'
+import { useTasksDataStore } from '@/hooks/useTasksDataStore'
+import { tasks } from '@/data/tasks-data'
 
-import React from 'react';
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-} from '../ui/dropdown-menu';
-import { Button } from '../ui/button';
-import { PanelsLeftRight } from 'lucide-react';
-import { DropdownMenuCheckboxItemProps } from '@radix-ui/react-dropdown-menu';
-import { columnOptions } from '@/constants/viewColumnsDropdown';
+const ViewColumnsDropDown = ({ table }: { table: Table<Task> }) => {
+    // const { tasks } = useTasksDataStore();
 
-type Checked = DropdownMenuCheckboxItemProps['checked'];
+    const columnsToHide = ["priority", "status", "createdAt"];
 
-const ViewColumnsDropDown = () => {
-  const [columnVisibility, setColumnVisibility] = React.useState<Record<string, Checked>>(() =>
-    columnOptions.reduce(
-      (acc, option) => ({
-        ...acc,
-        [option.key]: option.defaultChecked,
-      }),
-      {}
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <Button
+                    disabled={!tasks}
+                    variant={'outline'} 
+                    className='h-11 px-8 poppins'
+                >
+                    <Settings2 />
+                    <span>View</span>
+                </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className='w-56 poppins'>
+                {table
+                    .getAllColumns()
+                    .filter(
+                        (column) => column.getCanHide() && columnsToHide.includes(column.id)
+                    )
+                    .map((column) => {
+                        return (
+                            <DropdownMenuCheckboxItem
+                                key={column.id}
+                                className='capitalize'
+                                checked={column.getIsVisible()}
+                                onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                            >
+                                {column.id}
+                            </DropdownMenuCheckboxItem>
+                        );
+                    })}
+            </DropdownMenuContent>
+        </DropdownMenu>
     )
-  );
+}
 
-  const handleColumnToggle = (columnKey: string) => (checked: Checked) => {
-    setColumnVisibility(prev => ({
-      ...prev,
-      [columnKey]: checked,
-    }));
-  };
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant={'outline'} className="h-11 px-8">
-          <PanelsLeftRight />
-          <span>View</span>
-        </Button>
-      </DropdownMenuTrigger>
-
-      <DropdownMenuContent className="w-56">
-        <DropdownMenuLabel>Toggle Columns</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        {columnOptions.map(option => (
-          <DropdownMenuCheckboxItem
-            key={option.key}
-            checked={columnVisibility[option.key]}
-            onCheckedChange={handleColumnToggle(option.key)}
-          >
-            {option.label}
-          </DropdownMenuCheckboxItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-};
-
-export default ViewColumnsDropDown;
+export default ViewColumnsDropDown

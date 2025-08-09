@@ -5,7 +5,7 @@ import {
   ArrowRight,
   CircleQuestionMark,
   Circle,
-  Clock1,
+  Timer,
   CircleOff,
   CircleCheckBig,
 } from 'lucide-react';
@@ -42,7 +42,7 @@ export const statuses: Status[] = [
   {
     value: 'in progress',
     label: 'In Progress',
-    icon: Clock1,
+    icon: Timer,
   },
   {
     value: 'done',
