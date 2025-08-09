@@ -13,3 +13,7 @@ export interface AuthContextType {
   loading: boolean;
   logout: () => Promise<void>;
 }
+
+export interface AuthProviderProps {
+  children: React.ReactNode;
+}

@@ -4,7 +4,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User as FirebaseUser, onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
-import type { AuthUser, AuthContextType } from '@/types/auth';
+import type { AuthUser, AuthContextType, AuthProviderProps } from '@/types/auth';
 import { getAvatarUrl } from '@/utils/auth';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -16,10 +16,6 @@ export const useAuth = (): AuthContextType => {
   }
   return context;
 };
-
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);

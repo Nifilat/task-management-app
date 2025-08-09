@@ -1,4 +1,4 @@
-import { FormConfig } from './types';
+import type { FormConfig } from '@/types/forms';
 
 export const authFormConfigs: Record<'login' | 'register', FormConfig> = {
   login: {

@@ -4,9 +4,8 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { auth, db, storage } from '@/config/firebase';
-import { LoginSchema, RegisterSchema } from './validation/authSchema';
+import { auth, db } from '@/config/firebase';
+import type { LoginSchema, RegisterSchema } from './validation/authSchema';
 import { testFirestoreConnection, checkFirestoreRules } from './firestore-debug';
 
 // Utility: Convert image file to base64
@@ -17,19 +16,6 @@ export const fileToBase64 = (file: File): Promise<string> => {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-};
-
-// Utility: Upload image to Firebase Storage
-export const uploadProfileImage = async (file: File, userId: string): Promise<string> => {
-  try {
-    const storageRef = ref(storage, `profile-images/${userId}/${file.name}`);
-    const snapshot = await uploadBytes(storageRef, file);
-    const downloadURL = await getDownloadURL(snapshot.ref);
-    return downloadURL;
-  } catch (error) {
-    console.error('Error uploading profile image:', error);
-    throw new Error('Failed to upload profile image');
-  }
 };
 
 // Fallback Avatar URL (e.g., dicebear initials)
@@ -88,17 +74,17 @@ export const registerUser = async (values: RegisterSchema, profileImageFile?: Fi
 
     try {
       if (profileImageFile) {
-        console.log('Uploading profile image...');
-        // Upload image to Firebase Storage and get URL
-        profilePhotoURL = await uploadProfileImage(profileImageFile, user.uid);
-        console.log('Profile image uploaded:', profilePhotoURL);
+        console.log('Converting profile image to base64...');
+        // Convert image to base64 instead of uploading to Firebase Storage
+        profilePhotoURL = await fileToBase64(profileImageFile);
+        console.log('Profile image converted to base64');
       } else {
         // Use fallback avatar
         profilePhotoURL = getAvatarUrl(values.firstName, values.lastName);
         console.log('Using fallback avatar:', profilePhotoURL);
       }
     } catch (imageError) {
-      console.error('Profile photo upload failed, using fallback avatar:', imageError);
+      console.error('Profile photo processing failed, using fallback avatar:', imageError);
       profilePhotoURL = getAvatarUrl(values.firstName, values.lastName);
     }
 
@@ -118,11 +104,18 @@ export const registerUser = async (values: RegisterSchema, profileImageFile?: Fi
     try {
       await setDoc(doc(db, 'users', user.uid), userData);
       console.log('User data saved to Firestore successfully');
-    } catch (firestoreError) {
+    } catch (firestoreError: unknown) {
       console.error('Firestore save error:', firestoreError);
-      console.error('Error code:', firestoreError.code);
-      console.error('Error message:', firestoreError.message);
-      throw new Error(`Failed to save user data: ${firestoreError.message}`);
+      
+      // Type guard for Firebase error
+      if (firestoreError && typeof firestoreError === 'object' && 'code' in firestoreError) {
+        const firebaseError = firestoreError as { code: string; message: string };
+        console.error('Error code:', firebaseError.code);
+        console.error('Error message:', firebaseError.message);
+        throw new Error(`Failed to save user data: ${firebaseError.message}`);
+      } else {
+        throw new Error('Failed to save user data: Unknown error occurred');
+      }
     }
 
     // Update Firebase Auth profile AFTER Firestore save
@@ -137,7 +130,6 @@ export const registerUser = async (values: RegisterSchema, profileImageFile?: Fi
       // Don't throw error here as Firestore data is already saved
     }
     
-
     return userCredential;
   } catch (error: any) {
     console.error('Registration error:', error);

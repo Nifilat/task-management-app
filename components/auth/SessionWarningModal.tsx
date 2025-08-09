@@ -12,14 +12,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Clock, AlertTriangle } from 'lucide-react';
-
-interface SessionWarningModalProps {
-  isOpen: boolean;
-  timeRemaining: number;
-  formatTime: (seconds: number) => string;
-  onExtendSession: () => void;
-  onLogout: () => void;
-}
+import type { SessionWarningModalProps } from '@/types/session';
 
 const SessionWarningModal: React.FC<SessionWarningModalProps> = ({
   isOpen,

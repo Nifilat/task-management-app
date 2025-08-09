@@ -6,18 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Upload, User } from 'lucide-react';
-import {
   LoginSchema,
   loginSchema,
   registerSchema,
@@ -25,147 +13,8 @@ import {
 } from '@/utils/validation/authSchema';
 import { loginUser, registerUser, fileToBase64 } from '@/utils/auth';
 import { authFormConfigs } from '@/config/formFields';
-import type { FormConfig } from '@/config/types';
+import AuthForm from './AuthForm';
 
-// Generic Form Component
-interface AuthFormProps {
-  config: FormConfig;
-  form: any;
-  onSubmit: (values: any) => void;
-  loading: boolean;
-  error: string;
-  selectedImage?: File | null;
-  imagePreview?: string;
-  onImageSelect?: (event: React.ChangeEvent<HTMLInputElement>) => void;
-}
-
-const AuthForm: React.FC<AuthFormProps> = ({
-  config,
-  form,
-  onSubmit,
-  loading,
-  error,
-  selectedImage,
-  imagePreview,
-  onImageSelect,
-}) => {
-  const renderField = (field: any, index: number) => {
-    const isGridField =
-      field.gridCols &&
-      index < config.fields.length - 1 &&
-      config.fields[index + 1]?.gridCols === field.gridCols;
-
-    if (isGridField && index % 2 === 0) {
-      // Render two fields in a grid
-      const nextField = config.fields[index + 1];
-      return (
-        <div key={`grid-${index}`} className="grid grid-cols-2 gap-4">
-          {[field, nextField].map(gridField => (
-            <FormField
-              key={gridField.name}
-              control={form.control}
-              name={gridField.name}
-              render={({ field: formField }) => (
-                <FormItem>
-                  <FormLabel className="text-foreground">{gridField.label}</FormLabel>
-                  <FormControl>
-                    <Input
-                      {...formField}
-                      type={gridField.type}
-                      placeholder={gridField.placeholder}
-                      className="bg-background border-border focus:border-ring focus:ring-ring/50"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          ))}
-        </div>
-      );
-    }
-
-    // Skip the second field in grid as it's already rendered
-    if (field.gridCols && index > 0 && config.fields[index - 1]?.gridCols === field.gridCols) {
-      return null;
-    }
-
-    // Render single field
-    return (
-      <FormField
-        key={field.name}
-        control={form.control}
-        name={field.name}
-        render={({ field: formField }) => (
-          <FormItem>
-            <FormLabel className="text-foreground">{field.label}</FormLabel>
-            <FormControl>
-              <Input
-                {...formField}
-                type={field.type}
-                placeholder={field.placeholder}
-                className="bg-background border-border focus:border-ring focus:ring-ring/50"
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-    );
-  };
-
-  return (
-    <div className="space-y-4">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          {/* Image Upload for Registration */}
-          {config.hasImageUpload && onImageSelect && (
-            <div className="flex flex-col items-center space-y-2">
-              <div className="relative">
-                <Avatar className="h-20 w-20">
-                  {imagePreview ? (
-                    <AvatarImage src={imagePreview} alt="Profile preview" />
-                  ) : (
-                    <AvatarFallback className="bg-muted">
-                      <User className="h-8 w-8 text-muted-foreground" />
-                    </AvatarFallback>
-                  )}
-                </Avatar>
-                <label
-                  htmlFor="profile-image"
-                  className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1.5 cursor-pointer hover:bg-primary/90 transition-colors"
-                >
-                  <Upload className="h-3 w-3 text-primary-foreground" />
-                  <input
-                    id="profile-image"
-                    type="file"
-                    accept="image/*"
-                    onChange={onImageSelect}
-                    className="hidden"
-                  />
-                </label>
-              </div>
-              <p className="text-xs text-muted-foreground">Click to upload profile photo (optional)</p>
-            </div>
-          )}
-
-          {/* Dynamic Fields */}
-          {config.fields.map((field, index) => renderField(field, index))}
-
-          {/* Error Display */}
-          {error && <div className="text-destructive text-sm text-center">{error}</div>}
-
-          {/* Submit Button */}
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? config.loadingText : config.submitText}
-          </Button>
-        </form>
-      </Form>
-    </div>
-  );
-};
-
-// Main Auth Page Component
 const AuthPage: React.FC = () => {
   const [authError, setAuthError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -240,9 +89,9 @@ const AuthPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <Card className="w-full max-w-md shadow-lg border-border">
+      <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center text-foreground">
+          <CardTitle className="text-2xl font-bold text-center">
             Task Manager
           </CardTitle>
         </CardHeader>

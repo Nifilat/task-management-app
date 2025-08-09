@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-
-interface UseSessionTimeoutProps {
-  inactivityTimeout?: number;
-  warningTime?: number;
-}
+import type { UseSessionTimeoutProps } from '@/types/session';
 
 export const useSessionTimeout = ({
   inactivityTimeout = 30,

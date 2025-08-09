@@ -37,7 +37,6 @@ export default function Navbar() {
 
   const fullName = `${user.firstName} ${user.lastName}`.trim() || user.email;
   const avatarUrl = user.profilePhoto || getAvatarUrl(user.firstName, user.lastName);
-  console.log("fullName is" , user)
 
   // Generate initials fallback
   const initials =
@@ -49,7 +48,7 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="font-sans relative w-full h-[92px] overflow-hidden flex items-center justify-between px-6 border-b border-border">
+      <div className="relative w-full h-[92px] overflow-hidden flex items-center justify-between px-6 border-b">
         <AppNameLogo />
         <div className="flex items-center gap-3 justify-center">
           <Button>Add Task</Button>
@@ -93,7 +92,7 @@ export default function Navbar() {
 
               <DropdownMenuSeparator />
 
-              <DropdownMenuItem className="text-destructive focus:text-destructive" onClick={handleLogout}>
+              <DropdownMenuItem variant="destructive" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>
