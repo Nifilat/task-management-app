@@ -1,7 +1,10 @@
 import dynamic from 'next/dynamic';
-import Navbar from '@/components/layout/Navbar';
 
 const ProtectedRoute = dynamic(() => import('@/components/auth/ProtectedRoute'), {
+  ssr: false,
+});
+
+const Navbar = dynamic(() => import('@/components/layout/Navbar'), {
   ssr: false,
 });
 
