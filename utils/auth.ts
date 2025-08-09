@@ -120,9 +120,13 @@ export const registerUser = async (values: RegisterSchema, profileImageFile?: Fi
 
     // Update Firebase Auth profile AFTER Firestore save
     try {
+      // Only set photoURL if it's not a base64 string (too long for Firebase Auth)
+      const isBase64 = profilePhotoURL.startsWith('data:image/');
+      const authPhotoURL = isBase64 ? getAvatarUrl(values.firstName, values.lastName) : profilePhotoURL;
+      
       await updateProfile(user, {
         displayName: `${values.firstName} ${values.lastName}`,
-        photoURL: profilePhotoURL,
+        photoURL: authPhotoURL,
       });
       console.log('Firebase Auth profile updated');
     } catch (profileError) {

@@ -1,5 +1,9 @@
+import dynamic from 'next/dynamic';
 import Navbar from '@/components/layout/Navbar';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
+
+const ProtectedRoute = dynamic(() => import('@/components/auth/ProtectedRoute'), {
+  ssr: false,
+});
 
 export default function Home() {
   return (
