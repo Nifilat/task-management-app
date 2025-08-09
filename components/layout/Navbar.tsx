@@ -37,6 +37,7 @@ export default function Navbar() {
 
   const fullName = `${user.firstName} ${user.lastName}`.trim() || user.email;
   const avatarUrl = user.profilePhoto || getAvatarUrl(user.firstName, user.lastName);
+  console.log("fullName is" , user)
 
   // Generate initials fallback
   const initials =
