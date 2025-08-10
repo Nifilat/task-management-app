@@ -1,13 +1,13 @@
-import { create } from "zustand";
+import { create } from 'zustand';
 
-interface useQueryStoreInterface { 
-    query: string;
-    setQuery: (query: string) => void;
+interface useQueryStoreInterface {
+  query: string;
+  setQuery: (query: string) => void;
 }
 
-export const useQueryStore = create<useQueryStoreInterface>((set) => ({
-    query: '',
-    setQuery: (query: string) => {
-        set({ query: query})
-    },
+export const useQueryStore = create<useQueryStoreInterface>(set => ({
+  query: '',
+  setQuery: (query: string) => {
+    set({ query: query });
+  },
 }));

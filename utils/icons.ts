@@ -1,21 +1,21 @@
 import {
-  ArrowUpCircle,
-  CheckCircle2,
   Circle,
   HelpCircle,
-  XCircle,
+  CircleOff,
   ArrowUp,
   ArrowRight,
   ArrowDown,
+  Timer,
+  CircleCheckBig,
 } from 'lucide-react';
 import type { Status, Priority } from '@/data/types';
 
 export const getStatusIcon = (status: Status) => {
   const statusIcons = {
     Backlog: HelpCircle,
-    Canceled: XCircle,
-    Done: CheckCircle2,
-    'In Progress': ArrowUpCircle,
+    Canceled: CircleOff,
+    Done: CircleCheckBig,
+    'In Progress': Timer,
     Todo: Circle,
   } as const;
 

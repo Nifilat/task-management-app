@@ -1,5 +1,17 @@
-import { Copy, Edit2, Star, ArrowRight, ArrowUp, ArrowDown, Timer, CheckCircle2, Circle, HelpCircle, XCircle } from "lucide-react";
-import { MenuItemType, DropdownItem } from "./types";
+import {
+  Copy,
+  Edit2,
+  Star,
+  ArrowRight,
+  ArrowUp,
+  ArrowDown,
+  Timer,
+  Circle,
+  HelpCircle,
+  CircleOff,
+  CircleCheckBig,
+} from 'lucide-react';
+import { MenuItemType, DropdownItem } from './types';
 
 export const MENU_ITEMS: MenuItemType[] = [
   {
@@ -22,7 +34,14 @@ export const MENU_ITEMS: MenuItemType[] = [
   },
 ];
 
-export const LABEL_OPTIONS = ['Bug', 'Deployment', 'Documentation', 'Feature', 'Refactoring', 'Testing'];
+export const LABEL_OPTIONS = [
+  'Bug',
+  'Deployment',
+  'Documentation',
+  'Feature',
+  'Refactoring',
+  'Testing',
+];
 
 export const PRIORITY_ITEMS: DropdownItem[] = [
   {
@@ -67,13 +86,13 @@ export const STATUS_ITEMS: DropdownItem[] = [
   {
     value: 'done',
     label: 'Done',
-    icon: CheckCircle2,
+    icon: CircleCheckBig,
     count: 0,
   },
   {
     value: 'canceled',
     label: 'Canceled',
-    icon: XCircle,
+    icon: CircleOff,
     count: 0,
   },
 ];

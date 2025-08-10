@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import { useMemo } from "react";
-import { useCheckedPrioritiesStore } from "@/hooks/useCheckedPrioritiesStore";
-import { tasks } from "@/data/tasks-data";
-import { Priority } from "./types";
-import FilterDropdown from "./FilterDropdown";
-import { PRIORITY_ITEMS } from "./constants";
+import { useMemo } from 'react';
+import { useCheckedPrioritiesStore } from '@/hooks/useCheckedPrioritiesStore';
+import { tasks } from '@/data/tasks-data';
+import { Priority } from './types';
+import FilterDropdown from './FilterDropdown';
+import { PRIORITY_ITEMS } from './constants';
 
 const PriorityDropdown = () => {
   const { checkedPriorities, setCheckedPriorities } = useCheckedPrioritiesStore();
@@ -13,9 +13,9 @@ const PriorityDropdown = () => {
   const priorityItemsWithCounts = useMemo(() => {
     if (!tasks) return PRIORITY_ITEMS;
 
-    return PRIORITY_ITEMS.map((item) => ({
+    return PRIORITY_ITEMS.map(item => ({
       ...item,
-      count: tasks.filter((task) => task.priority === item.label).length,
+      count: tasks.filter(task => task.priority === item.label).length,
     }));
   }, []);
 

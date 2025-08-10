@@ -1,4 +1,4 @@
-import { LucideIcon } from "lucide-react";
+import { LucideIcon } from 'lucide-react';
 
 // Base dropdown item interface
 export interface DropdownItem {
@@ -9,7 +9,7 @@ export interface DropdownItem {
 }
 
 // Task menu types
-export type Kind = "edit" | "copy" | "favorite" | "delete";
+export type Kind = 'edit' | 'copy' | 'favorite' | 'delete';
 
 export interface MenuItemType {
   icon: LucideIcon;
@@ -19,9 +19,9 @@ export interface MenuItemType {
 }
 
 // Filter dropdown types
-export type Priority = "Low" | "Medium" | "High";
-export type Status = "Backlog" | "Todo" | "In Progress" | "Done" | "Canceled";
-export type Label = "Bug" | "Deployment" | "Documentation" | "Feature" | "Refactoring" | "Testing";
+export type Priority = 'Low' | 'Medium' | 'High';
+export type Status = 'Backlog' | 'Todo' | 'In Progress' | 'Done' | 'Canceled';
+export type Label = 'Bug' | 'Deployment' | 'Documentation' | 'Feature' | 'Refactoring' | 'Testing';
 
 // Generic filter dropdown props
 export interface FilterDropdownProps<T> {
@@ -33,7 +33,7 @@ export interface FilterDropdownProps<T> {
   maxDisplayBadges?: number;
 }
 export interface SubLabelMenuProps {
-    value: string;
-    onValueChange: (value: string) => void;
-    onClickedLabelItem: (value: string) => void;
+  value: string;
+  onValueChange: (value: string) => void;
+  onClickedLabelItem: (value: string) => void;
 }

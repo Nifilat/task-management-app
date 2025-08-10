@@ -1,35 +1,29 @@
-import { Task } from "@/data/types";
-import { FilterFn } from "@tanstack/react-table";
+import { Task } from '@/data/types';
+import { FilterFn } from '@tanstack/react-table';
 
 /**
  * Generic filter function for array-based filtering (like priority, status)
  */
-const createArrayFilter = <T>(columnId?: string): FilterFn<T> => (
-  row,
-  id,
-  filterValue: string[]
-) => {
-  const cellValue: string = row.getValue(columnId || id);
-  return filterValue.includes(cellValue);
-};
+const createArrayFilter =
+  <T>(columnId?: string): FilterFn<T> =>
+  (row, id, filterValue: string[]) => {
+    const cellValue: string = row.getValue(columnId || id);
+    return filterValue.includes(cellValue);
+  };
 
 /**
  * Generic filter function for text-based searching
  */
-const createTextFilter = <T>(columnId?: string): FilterFn<T> => (
-  row,
-  id,
-  filterValue: string
-) => {
-  const cellValue: string = row.getValue(columnId || id) || '';
-  const query = String(filterValue).toLowerCase();
-  return cellValue.toLowerCase().includes(query);
-};
-
+const createTextFilter =
+  <T>(columnId?: string): FilterFn<T> =>
+  (row, id, filterValue: string) => {
+    const cellValue: string = row.getValue(columnId || id) || '';
+    const query = String(filterValue).toLowerCase();
+    return cellValue.toLowerCase().includes(query);
+  };
 
 export const priorityFilter: FilterFn<Task> = createArrayFilter<Task>();
 export const statusFilter: FilterFn<Task> = createArrayFilter<Task>();
 export const titleFilter: FilterFn<Task> = createTextFilter<Task>('title');
-
 
 export { createArrayFilter, createTextFilter };

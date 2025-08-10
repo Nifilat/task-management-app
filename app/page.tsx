@@ -8,8 +8,8 @@ export default function Home() {
     <ProtectedRoute>
       <div className="font-sans min-h-screen">
         <Navbar />
-      <StatsCard />
-      <TasksArea />
+        <StatsCard />
+        <TasksArea />
       </div>
     </ProtectedRoute>
   );

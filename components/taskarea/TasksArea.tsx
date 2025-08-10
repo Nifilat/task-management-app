@@ -14,11 +14,11 @@ import ViewColumnsDropDown from '../dropdown/ViewColumnsDropdown';
 import { TasksTable } from './TasksTable';
 import TableSkeleton from './TableSkeleton';
 import { tasksColumns } from './TaskColumns';
-import { 
-  useReactTable, 
-  ColumnFiltersState, 
+import {
+  useReactTable,
+  ColumnFiltersState,
   SortingState,
-  getCoreRowModel, 
+  getCoreRowModel,
   getFilteredRowModel,
   getSortedRowModel,
   getPaginationRowModel,
@@ -58,11 +58,11 @@ const TasksArea = () => {
     if (query) {
       newFilters.push({ id: 'title', value: query });
     }
-    
+
     if (checkedPriorities.length > 0) {
       newFilters.push({ id: 'priority', value: checkedPriorities });
     }
-    
+
     if (checkedStatuses.length > 0) {
       newFilters.push({ id: 'status', value: checkedStatuses });
     }
@@ -79,7 +79,7 @@ const TasksArea = () => {
       totalRowCount: table.getCoreRowModel().rows.length,
       checkedPriorities,
       checkedStatuses,
-      query
+      query,
     });
   }, [columnFilters, sorting, table, checkedPriorities, checkedStatuses, query]);
 
@@ -93,14 +93,14 @@ const TasksArea = () => {
               <StatusDropdown />
               <PriorityDropdown />
 
-              <Button 
+              <Button
                 onClick={() => {
-                  setCheckedPriorities([]); 
+                  setCheckedPriorities([]);
                   setCheckedStatuses([]);
                   // Also clear the search query if needed
                   // setQuery('');
-                }} 
-                variant={'ghost'} 
+                }}
+                variant={'ghost'}
                 className="h-10"
               >
                 <span>Reset</span>
@@ -112,11 +112,7 @@ const TasksArea = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {!tasks ? (
-            <TableSkeleton />
-          ) : (
-            <TasksTable columns={tasksColumns} table={table} />
-          )}
+          {!tasks ? <TableSkeleton /> : <TasksTable columns={tasksColumns} table={table} />}
         </CardContent>
         <CardFooter>
           <PaginationArea />
