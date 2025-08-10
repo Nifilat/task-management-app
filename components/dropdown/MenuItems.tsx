@@ -1,7 +1,7 @@
 import { DropdownMenuItem, DropdownMenuShortcut } from '@/components/ui/dropdown-menu';
 import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 import { useOpenDialogStore } from '@/hooks/useOpenDialogStore';
-import { LucideIcon } from 'lucide-react';
+import { DivideIcon as LucideIcon } from 'lucide-react';
 import { handleMenuItemClick } from './utils';
 import { Kind } from './types';
 
