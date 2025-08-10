@@ -8,17 +8,15 @@ import { X } from 'lucide-react';
 import { useCheckedPrioritiesStore } from '@/hooks/useCheckedPrioritiesStore';
 import { useCheckedStatusesStore } from '@/hooks/useCheckedStatusesStore';
 import { useQueryStore } from '@/hooks/useQueryStore';
-import PriorityDropDown from '../dropdown/priority-dropdown';
-import StatusDropDown from '../dropdown/status-dropdown';
-import ViewColumnsDropDown from '../dropdown/view-columns-dropdown';
+import PriorityDropdown from '../dropdown/PriorityDropdown';
+import StatusDropdown from '../dropdown/StatusDropdown';
+import ViewColumnsDropDown from '../dropdown/ViewColumnsDropdown';
 import { TasksTable } from './TasksTable';
 import TableSkeleton from './TableSkeleton';
 import { tasksColumns } from './TaskColumns';
 import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 import { useReactTable, ColumnFiltersState, getCoreRowModel, getFilteredRowModel } from '@tanstack/react-table';
-import { titleFilter } from '../filters/titleFilter';
-import { statusFilter } from '../filters/statusFilter';
-import { priorityFilter } from '../filters/priorityFilter';
+import { priorityFilter, statusFilter, titleFilter } from '@/utils/tableFilters';
 import PaginationArea from './pagination/PaginationArea';
 import { tasks } from '@/data/tasks-data';
 
@@ -67,9 +65,9 @@ const TasksArea = () => {
             <div className="flex items-center gap-2">
               <SearchInput />
               {/* status drop down */}
-              <StatusDropDown />
+              <StatusDropdown />
               {/* priority drop down */}
-              <PriorityDropDown />
+              <PriorityDropdown />
 
               <Button onClick={() => {setCheckedPriorities([]); setCheckedStatuses([]); }} variant={'ghost'} className="h-10">
                 <span>Reset</span>

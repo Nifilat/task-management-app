@@ -1,12 +1,9 @@
 import { DropdownMenuPortal, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger } from "@/components/ui/dropdown-menu";
 import { Tag } from "lucide-react";
 import { LABEL_OPTIONS } from "./constants";
+import { SubLabelMenuProps } from "./types";
 
-interface SubLabelMenuProps {
-    value: string;
-    onValueChange: (value: string) => void;
-    onClickedLabelItem: (value: string) => void;
-}
+
 
 export function SubLabelMenu({
     value,

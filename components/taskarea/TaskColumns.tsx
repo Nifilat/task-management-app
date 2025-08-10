@@ -222,9 +222,8 @@ import { Column, ColumnDef } from "@tanstack/react-table";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { Checkbox } from "../ui/checkbox";
 import { Badge } from "../ui/badge";
-import Dropdown from "../dropdown/Dropdown";
 import { useTasksDataStore } from "@/hooks/useTasksDataStore";
-import { TasksDropDown } from "../dropdown/tasks-dropdown/TasksDropDown";
+import { TasksDropdown } from "../dropdown/TasksDropdown";
 
 function renderStatusIcons(status: Status) {
     switch (status) {
@@ -421,7 +420,7 @@ function ShowTaskDropDown({ task }: { task: Task }) {
     const { setSelectedTask } = useTasksDataStore();
 
     return (
-        <TasksDropDown
+        <TasksDropdown
             onOpen={() => setSelectedTask(task)}
             onClose={() => setSelectedTask(null)}
         />

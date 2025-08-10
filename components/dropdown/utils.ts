@@ -1,5 +1,5 @@
 import { Task } from "@/data/types";
-import { Kind } from "./types";
+import { Kind } from "./tasks-dropdown/types";
 import { useTasksDataStoreInterface } from "@/hooks/useTasksDataStore";
 import { toast } from "sonner";
 import { generateRandomThreeDigitNumber } from "@/functions/generateRandomNumber";

@@ -1,8 +1,7 @@
 'use client';
 
+import Image from 'next/image';
 import { ModeToggle } from '../mode-toggle';
-import { Button } from '../ui/button';
-import { AppNameLogo } from './AppNameLogo';
 import TaskDialog from '../task-dialog/TaskDialog';
 import {
   DropdownMenu,
@@ -13,54 +12,93 @@ import {
   DropdownMenuItem,
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import { User } from '@/types';
+import { DEFAULT_USER } from '@/constants/user';
 
-const dummyUser = {
-  displayName: 'Martin Will-Walker',
-  email: 'drake9@example.net',
-  profilePhoto: 'https://cdn.jsdelivr.net/gh/faker-js/assets-person-portrait/male/512/35.jpg',
-};
 
-export default function Navbar() {
+function AppNameLogo() {
   return (
-    <div className="font-sans relative w-full h-[92px] overflow-hidden flex items-center justify-between px-6 border-b">
+    <header className="flex items-center gap-2">
+      <Image 
+        src="/logo.png" 
+        width={40} 
+        height={40} 
+        alt="Task Manager Logo" 
+        priority
+      />
+      <h1 className="font-semibold text-2xl max-md:hidden">
+        Task <span className="font-normal text-primary">Manager</span>
+      </h1>
+    </header>
+  );
+}
+
+interface UserDropdownProps {
+  user: User;
+  onLogout?: () => void;
+}
+
+function UserDropdown({ user, onLogout }: UserDropdownProps) {
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(n => n[0])
+      .join('')
+      .toUpperCase();
+  };
+
+  const handleLogout = () => {
+    onLogout?.();
+    // Add your actual logout logic here
+    alert('Logged out');
+  };
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Avatar className="cursor-pointer hover:ring-2 hover:ring-primary/20 transition-all">
+          {user.profilePhoto ? (
+            <AvatarImage src={user.profilePhoto} alt={user.displayName} />
+          ) : (
+            <AvatarFallback>
+              {getInitials(user.displayName)}
+            </AvatarFallback>
+          )}
+        </Avatar>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent className="w-56" align="end">
+        <DropdownMenuLabel>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium">{user.displayName}</span>
+            <span className="text-xs text-muted-foreground">{user.email}</span>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem 
+          className="text-red-600 focus:text-red-600" 
+          onClick={handleLogout}
+        >
+          Log out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
+interface NavbarProps {
+  user?: User;
+  onLogout?: () => void;
+}
+
+export default function Navbar({ user = DEFAULT_USER, onLogout }: NavbarProps) {
+  return (
+    <nav className="font-sans relative w-full h-[92px] overflow-hidden flex items-center justify-between px-6 border-b">
       <AppNameLogo />
-      <div className="flex items-center gap-3 justify-center">
-      <TaskDialog />
-        {/* <Button>Add Task</Button> */}
+      <div className="flex items-center gap-3">
+        <TaskDialog />
         <ModeToggle />
-
-        {/* User Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Avatar className="cursor-pointer">
-              {dummyUser.profilePhoto ? (
-                <AvatarImage src={dummyUser.profilePhoto} alt={dummyUser.displayName} />
-              ) : (
-                <AvatarFallback>
-                  {dummyUser.displayName
-                    .split(' ')
-                    .map(n => n[0])
-                    .join('')
-                    .toUpperCase()}
-                </AvatarFallback>
-              )}
-            </Avatar>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-56" align="end">
-            <DropdownMenuLabel>
-              <div className="flex flex-col">
-                <span className="text-sm font-medium">{dummyUser.displayName}</span>
-                <span className="text-xs text-muted-foreground">{dummyUser.email}</span>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem className="text-red-600" onClick={() => alert('Logged out')}>
-              Log out
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <UserDropdown user={user} onLogout={onLogout} />
       </div>
-    </div>
+    </nav>
   );
 }
