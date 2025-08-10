@@ -1,8 +1,4 @@
-import {
-  Copy,
-  Edit2,
-  Star,
-} from 'lucide-react';
+import { Copy, Edit2, Star } from 'lucide-react';
 import { MenuItemType } from './types';
 import { priorities, statuses } from '@/constants/shared';
 

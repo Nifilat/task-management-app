@@ -1,6 +1,5 @@
 import { Task } from '@/data/types';
 import { taskService } from '@/services/taskService';
-import { useAuth } from '@/contexts/AuthContext';
 import { create } from 'zustand';
 
 export interface useTasksDataStoreInterface {
@@ -8,14 +7,20 @@ export interface useTasksDataStoreInterface {
   loading: boolean;
   selectedTask: Task | null;
   setSelectedTask: (task: Task | null) => void;
-  fetchTasks: () => Promise<void>;
+  fetchTasks: (userId: string) => Promise<void>;
   updateTasks: (
     tasks: Task[],
     operation?: string | undefined
   ) => Promise<{ success: boolean; message: string }>;
-  addTask: (task: Task) => Promise<{ success: boolean; message: string }>;
+  addTask: (
+    task: Omit<Task, 'createdAt'>,
+    userId: string
+  ) => Promise<{ success: boolean; message: string }>;
   deleteTask: (taskId: string) => Promise<{ success: boolean; message: string }>;
-  toggleFavorite: (taskId: string, isFavorite: boolean) => Promise<{ success: boolean; message: string }>;
+  toggleFavorite: (
+    taskId: string,
+    isFavorite: boolean
+  ) => Promise<{ success: boolean; message: string }>;
 }
 
 export const useTasksDataStore = create<useTasksDataStoreInterface>((set, get) => ({
@@ -27,13 +32,12 @@ export const useTasksDataStore = create<useTasksDataStoreInterface>((set, get) =
     set({ selectedTask: task });
   },
 
-  fetchTasks: async () => {
-    const { user } = useAuth.getState?.() || {};
-    if (!user) return;
+  fetchTasks: async (userId: string) => {
+    if (!userId) return;
 
     set({ loading: true });
     try {
-      const userTasks = await taskService.getUserTasks(user.uid);
+      const userTasks = await taskService.getUserTasks(userId);
       set({ tasks: userTasks });
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
@@ -57,19 +61,18 @@ export const useTasksDataStore = create<useTasksDataStoreInterface>((set, get) =
     }
   },
 
-  addTask: async (task: Omit<Task, 'createdAt'>) => {
-    const { user } = useAuth.getState?.() || {};
-    if (!user) {
+  addTask: async (task: Omit<Task, 'createdAt'>, userId: string) => {
+    if (!userId) {
       return { success: false, message: 'User not authenticated!' };
     }
 
     try {
-      const taskWithUser = { ...task, userId: user.uid };
+      const taskWithUser = { ...task, userId };
       await taskService.addTask(taskWithUser);
-      
+
       // Refresh tasks
-      await get().fetchTasks();
-      
+      await get().fetchTasks(userId);
+
       return {
         success: true,
         message: 'Task added successfully!',
@@ -83,12 +86,13 @@ export const useTasksDataStore = create<useTasksDataStoreInterface>((set, get) =
   deleteTask: async (taskId: string) => {
     try {
       await taskService.deleteTask(taskId);
-      
+
       // Remove from local state
       set(state => ({
-        tasks: state.tasks?.filter(task => task.taskId !== taskId) || null,
+        tasks:
+          state.tasks?.filter(task => task.taskId !== taskId && task.taskId !== taskId) || null,
       }));
-      
+
       return {
         success: true,
         message: 'Task deleted successfully!',
@@ -102,21 +106,22 @@ export const useTasksDataStore = create<useTasksDataStoreInterface>((set, get) =
   toggleFavorite: async (taskId: string, isFavorite: boolean) => {
     try {
       await taskService.toggleFavorite(taskId, isFavorite);
-      
-      // Update local state
+
+      // Update local state - check both id and taskId for compatibility
       set(state => ({
-        tasks: state.tasks?.map(task =>
-          task.taskId === taskId ? { ...task, isFavorite } : task
-        ) || null,
+        tasks:
+          state.tasks?.map(task =>
+            task.taskId === taskId || task.taskId === taskId ? { ...task, isFavorite } : task
+          ) || null,
       }));
-      
+
       return {
         success: true,
         message: `Task ${isFavorite ? 'added to' : 'removed from'} favorites!`,
       };
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      return { success: false, message: 'Failed to add task!' };
+      return { success: false, message: 'Failed to update favorite status!' };
     }
   },
 }));

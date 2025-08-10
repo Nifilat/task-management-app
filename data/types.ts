@@ -1,3 +1,5 @@
+import { Timestamp } from 'firebase/firestore';
+
 export type Label = 'Bug' | 'Feature' | 'Documentation' | 'Testing' | 'Deployment' | 'Refactoring';
 export type Priority = 'Low' | 'Medium' | 'High';
 export type Status = 'Backlog' | 'Todo' | 'In Progress' | 'Done' | 'Canceled';
@@ -11,4 +13,8 @@ export type Task = {
   status: Status;
   createdAt: Date;
   userId: string; // Associate task with user
+};
+
+export type TaskDocument = Omit<Task, 'createdAt'> & {
+  createdAt: Timestamp; // Firebase Timestamp
 };

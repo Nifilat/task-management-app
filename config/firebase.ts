@@ -21,7 +21,7 @@ const missingVars = Object.entries(requiredEnvVars)
 if (missingVars.length > 0) {
   throw new Error(
     `Missing required Firebase environment variables: ${missingVars.join(', ')}. ` +
-    'Please check your .env.local file and ensure all Firebase configuration variables are set.'
+      'Please check your .env.local file and ensure all Firebase configuration variables are set.'
   );
 }
 

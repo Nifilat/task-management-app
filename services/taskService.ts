@@ -10,11 +10,13 @@ import {
   doc,
   serverTimestamp,
   Timestamp,
+  runTransaction,
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import type { Task } from '@/data/types';
 
 const TASKS_COLLECTION = 'tasks';
+const COUNTERS_COLLECTION = 'counters';
 
 // Convert Firestore timestamp to Date
 const convertTimestamp = (timestamp: any): Date => {
@@ -41,17 +43,33 @@ const firestoreToTask = (doc: any): Task => ({
   createdAt: convertTimestamp(doc.data().createdAt),
 });
 
+// Generate incremental task ID
+const generateTaskId = async (): Promise<string> => {
+  const counterRef = doc(db, COUNTERS_COLLECTION, 'taskCounter');
+
+  return runTransaction(db, async transaction => {
+    const counterDoc = await transaction.get(counterRef);
+
+    let newCount = 1;
+    if (counterDoc.exists()) {
+      newCount = (counterDoc.data().count || 0) + 1;
+    }
+
+    // Update the counter
+    transaction.set(counterRef, { count: newCount }, { merge: true });
+
+    // Format as Task-0001, Task-0002, etc.
+    return `Task-${newCount.toString().padStart(4, '0')}`;
+  });
+};
+
 export const taskService = {
   // Get all tasks for a specific user
   async getUserTasks(userId: string): Promise<Task[]> {
     try {
       const tasksRef = collection(db, TASKS_COLLECTION);
-      const q = query(
-        tasksRef,
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
-      );
-      
+      const q = query(tasksRef, where('userId', '==', userId), orderBy('createdAt', 'desc'));
+
       const querySnapshot = await getDocs(q);
       return querySnapshot.docs.map(firestoreToTask);
     } catch (error) {
@@ -60,7 +78,7 @@ export const taskService = {
     }
   },
 
-  // Add a new task
+  // Add a new task (original method)
   async addTask(task: Omit<Task, 'createdAt'>): Promise<string> {
     try {
       const taskData = {
@@ -68,12 +86,36 @@ export const taskService = {
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };
-      
+
       const docRef = await addDoc(collection(db, TASKS_COLLECTION), taskData);
       return docRef.id;
     } catch (error) {
       console.error('Error adding task:', error);
       throw new Error('Failed to add task');
+    }
+  },
+
+  // Add a new task with custom incremental ID
+  async createTaskWithId(task: Omit<Task, 'id' | 'createdAt'>): Promise<string> {
+    try {
+      const taskId = await generateTaskId();
+
+      const taskData = {
+        ...task,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      };
+
+      // Use the generated taskId as the document ID
+      const taskRef = doc(db, TASKS_COLLECTION, taskId);
+      await runTransaction(db, async transaction => {
+        transaction.set(taskRef, taskData);
+      });
+
+      return taskId;
+    } catch (error) {
+      console.error('Error creating task with ID:', error);
+      throw new Error('Failed to create task');
     }
   },
 

@@ -52,7 +52,7 @@ export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
     if (!labels.includes(newLabel as Label) || !selectedTask || !tasks) return;
 
     const updatedTask: Task = { ...selectedTask, label: newLabel as Label };
-    
+
     // TODO: Implement task update service call
     toast('Label update feature coming soon!');
   };

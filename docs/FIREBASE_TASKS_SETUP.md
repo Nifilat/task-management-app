@@ -13,6 +13,7 @@
 3. **Add sample tasks for user Conrad Hauck (uid: 5DGAkIhWM8R1jhA0J01O9b6nUoB2)**
 
 #### Task 1:
+
 - Document ID: `task_001_5DGAkIhWM8R1jhA0J01O9b6nUoB2` (or auto-generate)
 - Fields:
   ```
@@ -28,6 +29,7 @@
   ```
 
 #### Task 2:
+
 - Document ID: `task_002_5DGAkIhWM8R1jhA0J01O9b6nUoB2` (or auto-generate)
 - Fields:
   ```
@@ -43,6 +45,7 @@
   ```
 
 #### Task 3:
+
 - Document ID: `task_003_5DGAkIhWM8R1jhA0J01O9b6nUoB2` (or auto-generate)
 - Fields:
   ```
@@ -69,7 +72,7 @@ service cloud.firestore {
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
-    
+
     // Users can read and write their own tasks
     match /tasks/{taskId} {
       allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
@@ -82,6 +85,7 @@ service cloud.firestore {
 ## Step 3: Test the Setup
 
 After implementing the code changes, you should be able to:
+
 1. Login as Conrad Hauck
 2. See the 3 tasks you created
 3. Add new tasks

@@ -1,8 +1,4 @@
-import {
-  ColumnDef,
-  flexRender,
-  Table,
-} from '@tanstack/react-table';
+import { ColumnDef, flexRender, Table } from '@tanstack/react-table';
 import {
   Table as ShadcnTable,
   TableHeader,

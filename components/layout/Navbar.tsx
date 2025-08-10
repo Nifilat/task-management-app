@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
 } from '../ui/dropdown-menu';
 import { Avatar, AvatarImage } from '../ui/avatar';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuth';
 import { getAvatarUrl } from '@/utils/auth';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import SessionWarningModal from '@/components/auth/SessionWarningModal';

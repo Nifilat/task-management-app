@@ -9,6 +9,7 @@ import { useCheckedPrioritiesStore } from '@/hooks/useCheckedPrioritiesStore';
 import { useCheckedStatusesStore } from '@/hooks/useCheckedStatusesStore';
 import { useQueryStore } from '@/hooks/useQueryStore';
 import { useTasksDataStore } from '@/hooks/useTasksDataStore';
+import { useAuth } from '@/hooks/useAuth';
 import PriorityDropdown from '../dropdown/PriorityDropdown';
 import StatusDropdown from '../dropdown/StatusDropdown';
 import ViewColumnsDropDown from '../dropdown/ViewColumnsDropdown';
@@ -31,31 +32,32 @@ const TasksArea = () => {
   const { setCheckedStatuses, checkedStatuses } = useCheckedStatusesStore();
   const { query } = useQueryStore();
   const { tasks, loading, fetchTasks } = useTasksDataStore();
+  console.log('Tasks from TaskArea', tasks);
+  const { user } = useAuth();
 
-  // State for table
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
 
-  // Fetch tasks on component mount
   useEffect(() => {
-    fetchTasks();
-  }, [fetchTasks]);
+    if (user) {
+      console.log('Calling fetchTasks...');
+      fetchTasks(user.uid);
+    }
+  }, [fetchTasks, user]);
 
   const table = useReactTable({
     data: tasks || [],
     columns: tasksColumns,
     state: {
       columnFilters,
-      sorting, // ← ADD THIS
+      sorting,
     },
     onColumnFiltersChange: setColumnFilters,
-    onSortingChange: setSorting, // ← ADD THIS
+    onSortingChange: setSorting,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(), // ← ADD THIS
-    getPaginationRowModel: getPaginationRowModel(), // ← ADD THIS
-    // Remove the filterFns property - it should be in column definitions
-    // debugTable: true, // ← Add this temporarily to debug
+    getSortedRowModel: getSortedRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   useEffect(() => {
@@ -88,6 +90,11 @@ const TasksArea = () => {
       query,
     });
   }, [columnFilters, sorting, table, checkedPriorities, checkedStatuses, query]);
+
+  // Show loading if user is not available yet
+  if (!user) {
+    return <TableSkeleton />;
+  }
 
   return (
     <div className="px-7 mt-5">

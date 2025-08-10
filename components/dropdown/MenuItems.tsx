@@ -1,7 +1,8 @@
 import { DropdownMenuItem, DropdownMenuShortcut } from '@/components/ui/dropdown-menu';
 import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 import { useOpenDialogStore } from '@/hooks/useOpenDialogStore';
-import { DivideIcon as LucideIcon } from 'lucide-react';
+import { type LucideIcon } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
 import { handleMenuItemClick } from './utils';
 import { Kind } from './types';
 
@@ -21,6 +22,8 @@ export function MenuItem({
   const { selectedTask, fetchTasks } = useTasksDataStore();
   const { setIsOpen } = useOpenDialogStore();
 
+  const { user } = useAuth();
+
   const handleEdit = () => {
     setIsOpen(true);
     // selectedTask is already set, so the dialog will open in edit mode
@@ -30,8 +33,8 @@ export function MenuItem({
     handleMenuItemClick(
       kind,
       selectedTask,
-      fetchTasks,
-      handleEdit // ← Pass the edit callback
+      () => fetchTasks(user?.uid ?? ''),
+      handleEdit 
     );
   };
 

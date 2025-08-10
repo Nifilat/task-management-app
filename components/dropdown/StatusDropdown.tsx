@@ -2,13 +2,15 @@
 
 import { useMemo } from 'react';
 import { useCheckedStatusesStore } from '@/hooks/useCheckedStatusesStore';
-import { tasks } from '@/data/tasks-data';
 import { Status } from './types';
 import FilterDropdown from './FilterDropdown';
 import { STATUS_ITEMS } from './constants';
+import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 
 const StatusDropdown = () => {
   const { checkedStatuses, setCheckedStatuses } = useCheckedStatusesStore();
+
+  const { tasks } = useTasksDataStore();
 
   const statusItemsWithCounts = useMemo(() => {
     if (!tasks) return STATUS_ITEMS;

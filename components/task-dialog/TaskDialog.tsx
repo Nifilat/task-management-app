@@ -16,6 +16,7 @@ import TaskLabel from './sub-components/TaskLabel';
 import TaskPriority from './sub-components/TaskPriority';
 import TaskStatus from './sub-components/TaskStatus';
 import TaskTitle from './sub-components/TaskTitle';
+import { useAuth } from '@/hooks/useAuth';
 
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -33,6 +34,8 @@ export default function TaskDialog() {
   });
 
   const { addTask, selectedTask, setSelectedTask, fetchTasks } = useTasksDataStore();
+
+  const { user } = useAuth();
 
   const { handleSubmit, reset } = methods;
 
@@ -84,17 +87,19 @@ export default function TaskDialog() {
 
     // Create new
     const newTask: Task = {
-      taskId: `Task-${Date.now()}`,
+      taskId: '',
       title: data.title,
       status: data.status,
       priority: data.priority,
       label: data.label,
       isFavorite: false,
-      userId: '', // Will be set in the store
+      userId: '',
+      createdAt: new Date(),
     };
 
     try {
-      const result = await addTask(newTask);
+      const result = await addTask(newTask, user?.uid ?? '');
+      await fetchTasks(user?.uid ?? '');
       toast(
         `${result.success ? `The Task ${newTask.taskId} added successfully!` : 'Failed to add the task!'}`,
         {
@@ -103,7 +108,9 @@ export default function TaskDialog() {
         }
       );
 
-      await fetchTasks(); // Refresh the tasks list
+      if (user?.uid) {
+        await fetchTasks(user.uid);
+      } // Refresh the tasks list
       reset();
       setIsOpen(false);
     } catch (error) {

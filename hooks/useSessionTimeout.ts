@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from './useAuth';
 import type { UseSessionTimeoutProps } from '@/types/session';
 
 export const useSessionTimeout = ({
