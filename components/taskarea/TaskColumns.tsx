@@ -1,7 +1,7 @@
 'use client'
 
 import { Priority, Status, Task } from "@/data/types";
-import { ArrowUpCircle, ArrowUpDown, CheckCircle2, Circle, HelpCircle, Star, XCircle } from "lucide-react"
+import { Timer, ChevronsUpDown, CheckCircle2, Circle, HelpCircle, Star, XCircle } from "lucide-react"
 import { ArrowRight, ArrowDown, ArrowUp  } from "lucide-react";
 import { EyeOff } from "lucide-react";
 import { Column, ColumnDef } from "@tanstack/react-table";
@@ -19,7 +19,7 @@ function renderStatusIcons(status: Status) {
         case 'Todo':
             return Circle;
         case 'In Progress':
-            return ArrowUpCircle;
+            return Timer;
         case 'Done':
             return CheckCircle2;
         case 'Canceled':
@@ -63,7 +63,7 @@ const SortableHeader = ({ column, label }: SortableHeaderProps) => {
     const isSorted = column.getIsSorted();
     const SortingIcon = 
         isSorted === 'asc' ? ArrowUp :
-        isSorted === 'desc' ? ArrowDown : ArrowUpDown;
+        isSorted === 'desc' ? ArrowDown : ChevronsUpDown;
 
     return (
         <DropdownMenu>

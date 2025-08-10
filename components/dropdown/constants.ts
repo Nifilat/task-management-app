@@ -1,4 +1,4 @@
-import { Copy, Edit2, Star, ArrowRight, ArrowUp, ArrowDown, ArrowUpCircle, CheckCircle2, Circle, HelpCircle, XCircle } from "lucide-react";
+import { Copy, Edit2, Star, ArrowRight, ArrowUp, ArrowDown, Timer, CheckCircle2, Circle, HelpCircle, XCircle } from "lucide-react";
 import { MenuItemType, DropdownItem } from "./types";
 
 export const MENU_ITEMS: MenuItemType[] = [
@@ -61,7 +61,7 @@ export const STATUS_ITEMS: DropdownItem[] = [
   {
     value: 'in-progress',
     label: 'In Progress',
-    icon: ArrowUpCircle,
+    icon: Timer,
     count: 0,
   },
   {
