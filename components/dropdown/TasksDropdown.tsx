@@ -20,8 +20,6 @@ interface TasksDropdownProps {
 export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
   const [selectedLabel, setSelectedLabel] = useState<Label>("Bug");
   const { selectedTask, updateTasks } = useTasksDataStore();
-
-  // Update menu items based on favorite status
   const [menuItemsArray, setMenuItemsArray] = useState(MENU_ITEMS);
 
   useEffect(() => {
@@ -45,18 +43,9 @@ export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
   }, [selectedTask]);
 
   const handleLabelChange = async (newLabel: string) => {
-    if (!LABEL_OPTIONS.includes(newLabel)) {
-      console.error(`Invalid label: ${newLabel}`);
-      return;
-    }
-    
-    if (!selectedTask || !tasks) return;
+    if (!LABEL_OPTIONS.includes(newLabel) || !selectedTask || !tasks) return;
 
-    const updatedTask: Task = {
-      ...selectedTask,
-      label: newLabel as Label,
-    };
-
+    const updatedTask: Task = { ...selectedTask, label: newLabel as Label };
     const updatedTasks = tasks.map((task) =>
       task.taskId === selectedTask.taskId ? updatedTask : task
     );
@@ -67,15 +56,11 @@ export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
         result.success 
           ? `${selectedTask.taskId} updated successfully!` 
           : `${selectedTask.taskId} update failed`,
-        {
-          description: result.message,
-        }
+        { description: result.message }
       );
     } catch (error) {
       console.error("Failed to update task:", error);
-      toast("Update failed", {
-        description: "An unexpected error occurred",
-      });
+      toast("Update failed", { description: "An unexpected error occurred" });
     }
   };
 

@@ -1,19 +1,25 @@
 import { Task } from "@/data/types";
-import { Kind } from "./tasks-dropdown/types";
+import { Kind } from "./types";
 import { useTasksDataStoreInterface } from "@/hooks/useTasksDataStore";
 import { toast } from "sonner";
 import { generateRandomThreeDigitNumber } from "@/functions/generateRandomNumber";
+
 
 export async function handleMenuItemClick(
     kind: Kind,
     tasks: Task[] | null,
     selectedTask: Task | null,
     updateTasks: useTasksDataStoreInterface["updateTasks"],
-    
+    onEdit?: () => void, // ← Add edit callback
 ) {
-    if(!tasks || !selectedTask) return;
+    if (!tasks || !selectedTask) return;
 
     switch (kind) {
+        case "edit":
+            // Trigger edit mode
+            onEdit?.();
+            break;
+            
         case "favorite":
             const taskToUpdate: Task = {
                 ...selectedTask,
@@ -23,16 +29,17 @@ export async function handleMenuItemClick(
                 task.taskId === selectedTask.taskId ? taskToUpdate : task
             );
             const favoriteResult = await updateTasks(updateTasksArray);
-            if(!favoriteResult.success) {
-                toast("Operation failed",{
-                description: "Something went wrong",
-            });
+            if (!favoriteResult.success) {
+                toast("Operation failed", {
+                    description: "Something went wrong",
+                });
             } else {
-                toast("Task updated!",{
-                description: favoriteResult.message,
-            });
+                toast("Task updated!", {
+                    description: favoriteResult.message,
+                });
             }
             break;
+            
         case "copy":
             const copiedTask: Task = {
                 ...selectedTask,
@@ -42,20 +49,22 @@ export async function handleMenuItemClick(
             };
             const addCopiedTask = [...tasks, copiedTask];
             const result = await updateTasks(addCopiedTask, 'copy');
-            toast(`${result.success ? "Copied successfully!" : "Copy failed"}`,{
+            toast(`${result.success ? "Copied successfully!" : "Copy failed"}`, {
                 id: `copy-toast-${copiedTask.taskId}`,
                 description: result.message,
             });
             break;
+            
         case "delete":
             const deleteTaskArray = tasks.filter(
                 (task) => task.taskId !== selectedTask.taskId
             );
             const deleteResult = await updateTasks(deleteTaskArray, 'delete');
-            toast(`${deleteResult.success ? "Deletion successfully!" : "Deletion failed"}`,{
+            toast(`${deleteResult.success ? "Deleted successfully!" : "Deletion failed"}`, {
                 description: deleteResult.message,
             });
             break;
+            
         default:
             break;
     }

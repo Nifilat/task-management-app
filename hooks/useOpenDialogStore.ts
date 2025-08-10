@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
-interface DialogState {
+interface useOpenDialogStoreInterface {
     isOpen: boolean;
     setIsOpen: (isOpen: boolean) => void;
 }
 
-export const useOpenDialogStore = create<DialogState>((set) => ({
+export const useOpenDialogStore = create<useOpenDialogStoreInterface>((set) => ({
     isOpen: false,
-    setIsOpen: (open) => set({ isOpen: open}),
+    setIsOpen: (isOpen: boolean) => set({ isOpen }),
 }));
