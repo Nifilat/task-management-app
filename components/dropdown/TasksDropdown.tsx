@@ -10,12 +10,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useEffect, useState } from 'react';
 import { LucideEllipsis, Trash } from 'lucide-react';
-import { MENU_ITEMS, LABEL_OPTIONS } from './constants';
+import { MENU_ITEMS } from './constants';
+import { labels } from '@/constants/shared';
 import { MenuItem } from './MenuItems';
 import { SubLabelMenu } from './SubLabelMenu';
 import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 import { Label, Task } from '@/data/types';
-import { tasks } from '@/data/tasks-data';
 import { toast } from 'sonner';
 
 interface TasksDropdownProps {
@@ -25,7 +25,7 @@ interface TasksDropdownProps {
 
 export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
   const [selectedLabel, setSelectedLabel] = useState<Label>('Bug');
-  const { selectedTask, updateTasks } = useTasksDataStore();
+  const { selectedTask, tasks } = useTasksDataStore();
   const [menuItemsArray, setMenuItemsArray] = useState(MENU_ITEMS);
 
   useEffect(() => {
@@ -49,25 +49,12 @@ export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
   }, [selectedTask]);
 
   const handleLabelChange = async (newLabel: string) => {
-    if (!LABEL_OPTIONS.includes(newLabel) || !selectedTask || !tasks) return;
+    if (!labels.includes(newLabel as Label) || !selectedTask || !tasks) return;
 
     const updatedTask: Task = { ...selectedTask, label: newLabel as Label };
-    const updatedTasks = tasks.map(task =>
-      task.taskId === selectedTask.taskId ? updatedTask : task
-    );
-
-    try {
-      const result = await updateTasks(updatedTasks);
-      toast(
-        result.success
-          ? `${selectedTask.taskId} updated successfully!`
-          : `${selectedTask.taskId} update failed`,
-        { description: result.message }
-      );
-    } catch (error) {
-      console.error('Failed to update task:', error);
-      toast('Update failed', { description: 'An unexpected error occurred' });
-    }
+    
+    // TODO: Implement task update service call
+    toast('Label update feature coming soon!');
   };
 
   const handleLabelValueChange = (value: string) => {

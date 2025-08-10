@@ -8,37 +8,9 @@ import {
 } from '@/components/ui/select';
 import { Task } from '@/data/types';
 import { Label } from '@radix-ui/react-dropdown-menu';
-import { Circle, CircleCheckBig, HelpCircle, LucideIcon, Timer, CircleOff } from 'lucide-react';
 import { Controller, useFormContext } from 'react-hook-form';
+import { statuses } from '@/constants/shared';
 import { TaskFormData } from '../TaskDialogSchema';
-
-type Status = {
-  value: Task['status'];
-  icon: LucideIcon;
-};
-
-const statuses: Status[] = [
-  {
-    value: 'Backlog',
-    icon: HelpCircle,
-  },
-  {
-    value: 'Todo',
-    icon: Circle,
-  },
-  {
-    value: 'In Progress',
-    icon: Timer,
-  },
-  {
-    value: 'Done',
-    icon: CircleCheckBig,
-  },
-  {
-    value: 'Canceled',
-    icon: CircleOff,
-  },
-];
 
 export default function TaskStatus() {
   const { control } = useFormContext<TaskFormData>();

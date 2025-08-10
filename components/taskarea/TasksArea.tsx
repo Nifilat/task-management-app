@@ -8,6 +8,7 @@ import { X } from 'lucide-react';
 import { useCheckedPrioritiesStore } from '@/hooks/useCheckedPrioritiesStore';
 import { useCheckedStatusesStore } from '@/hooks/useCheckedStatusesStore';
 import { useQueryStore } from '@/hooks/useQueryStore';
+import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 import PriorityDropdown from '../dropdown/PriorityDropdown';
 import StatusDropdown from '../dropdown/StatusDropdown';
 import ViewColumnsDropDown from '../dropdown/ViewColumnsDropdown';
@@ -24,16 +25,21 @@ import {
   getPaginationRowModel,
 } from '@tanstack/react-table';
 import PaginationArea from './pagination/PaginationArea';
-import { tasks } from '@/data/tasks-data';
 
 const TasksArea = () => {
   const { setCheckedPriorities, checkedPriorities } = useCheckedPrioritiesStore();
   const { setCheckedStatuses, checkedStatuses } = useCheckedStatusesStore();
   const { query } = useQueryStore();
+  const { tasks, loading, fetchTasks } = useTasksDataStore();
 
   // State for table
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
+
+  // Fetch tasks on component mount
+  useEffect(() => {
+    fetchTasks();
+  }, [fetchTasks]);
 
   const table = useReactTable({
     data: tasks || [],
@@ -112,7 +118,7 @@ const TasksArea = () => {
           </div>
         </CardHeader>
         <CardContent>
-          {!tasks ? <TableSkeleton /> : <TasksTable columns={tasksColumns} table={table} />}
+          {loading ? <TableSkeleton /> : <TasksTable columns={tasksColumns} table={table} />}
         </CardContent>
         <CardFooter>
           <PaginationArea />

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { stats } from '@/constants/statsCard';
+import { defaultStats } from '@/constants/shared';
 import { StatsCardProps } from '@/types';
 
 function SingleStatsCard({ title, value, icon: Icon }: StatsCardProps) {
@@ -27,7 +27,7 @@ interface StatsCardContainerProps {
 }
 
 function StatsCard({
-  stats: customStats = stats,
+  stats: customStats = defaultStats,
   className = 'grid grid-cols-3 gap-6 max-sm:grid-cols-1 mt-7 p-6',
 }: StatsCardContainerProps) {
   if (!customStats?.length) {

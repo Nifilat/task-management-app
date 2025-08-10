@@ -2,16 +2,9 @@ import {
   Copy,
   Edit2,
   Star,
-  ArrowRight,
-  ArrowUp,
-  ArrowDown,
-  Timer,
-  Circle,
-  HelpCircle,
-  CircleOff,
-  CircleCheckBig,
 } from 'lucide-react';
-import { MenuItemType, DropdownItem } from './types';
+import { MenuItemType } from './types';
+import { priorities, statuses } from '@/constants/shared';
 
 export const MENU_ITEMS: MenuItemType[] = [
   {
@@ -34,65 +27,17 @@ export const MENU_ITEMS: MenuItemType[] = [
   },
 ];
 
-export const LABEL_OPTIONS = [
-  'Bug',
-  'Deployment',
-  'Documentation',
-  'Feature',
-  'Refactoring',
-  'Testing',
-];
+// Convert shared constants to dropdown items
+export const PRIORITY_ITEMS = priorities.map(p => ({
+  value: p.value.toLowerCase(),
+  label: p.label,
+  icon: p.icon,
+  count: 0,
+}));
 
-export const PRIORITY_ITEMS: DropdownItem[] = [
-  {
-    value: 'low',
-    label: 'Low',
-    icon: ArrowDown,
-    count: 0,
-  },
-  {
-    value: 'medium',
-    label: 'Medium',
-    icon: ArrowRight,
-    count: 0,
-  },
-  {
-    value: 'high',
-    label: 'High',
-    icon: ArrowUp,
-    count: 0,
-  },
-];
-
-export const STATUS_ITEMS: DropdownItem[] = [
-  {
-    value: 'backlog',
-    label: 'Backlog',
-    icon: HelpCircle,
-    count: 0,
-  },
-  {
-    value: 'todo',
-    label: 'Todo',
-    icon: Circle,
-    count: 0,
-  },
-  {
-    value: 'in-progress',
-    label: 'In Progress',
-    icon: Timer,
-    count: 0,
-  },
-  {
-    value: 'done',
-    label: 'Done',
-    icon: CircleCheckBig,
-    count: 0,
-  },
-  {
-    value: 'canceled',
-    label: 'Canceled',
-    icon: CircleOff,
-    count: 0,
-  },
-];
+export const STATUS_ITEMS = statuses.map(s => ({
+  value: s.value.toLowerCase().replace(' ', '-'),
+  label: s.label,
+  icon: s.icon,
+  count: 0,
+}));

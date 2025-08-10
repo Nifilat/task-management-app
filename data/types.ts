@@ -10,4 +10,5 @@ export type Task = {
   priority: Priority;
   status: Status;
   createdAt: Date;
+  userId: string; // Associate task with user
 };

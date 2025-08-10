@@ -1,7 +1,6 @@
 import { DropdownMenuItem, DropdownMenuShortcut } from '@/components/ui/dropdown-menu';
 import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 import { useOpenDialogStore } from '@/hooks/useOpenDialogStore';
-import { tasks } from '@/data/tasks-data';
 import { LucideIcon } from 'lucide-react';
 import { handleMenuItemClick } from './utils';
 import { Kind } from './types';
@@ -19,7 +18,7 @@ export function MenuItem({
   shortcut: string;
   className?: string;
 }) {
-  const { selectedTask, updateTasks } = useTasksDataStore();
+  const { selectedTask, fetchTasks } = useTasksDataStore();
   const { setIsOpen } = useOpenDialogStore();
 
   const handleEdit = () => {
@@ -30,9 +29,8 @@ export function MenuItem({
   const handleClick = () => {
     handleMenuItemClick(
       kind,
-      tasks,
       selectedTask,
-      updateTasks,
+      fetchTasks,
       handleEdit // ← Pass the edit callback
     );
   };

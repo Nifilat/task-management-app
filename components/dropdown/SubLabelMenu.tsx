@@ -7,7 +7,7 @@ import {
   DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tag } from 'lucide-react';
-import { LABEL_OPTIONS } from './constants';
+import { labels } from '@/constants/shared';
 import { SubLabelMenuProps } from './types';
 
 export function SubLabelMenu({ value, onValueChange, onClickedLabelItem }: SubLabelMenuProps) {
@@ -26,7 +26,7 @@ export function SubLabelMenu({ value, onValueChange, onClickedLabelItem }: SubLa
       <DropdownMenuPortal>
         <DropdownMenuSubContent className="poppins">
           <DropdownMenuRadioGroup value={value} onValueChange={handleValueChange}>
-            {LABEL_OPTIONS.map(option => (
+            {labels.map(option => (
               <DropdownMenuRadioItem key={option} value={option}>
                 {option}
               </DropdownMenuRadioItem>

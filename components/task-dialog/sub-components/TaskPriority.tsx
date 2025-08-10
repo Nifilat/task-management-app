@@ -9,28 +9,8 @@ import {
 import { Task } from '@/data/types';
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { Controller, useFormContext } from 'react-hook-form';
-import { ArrowDown, ArrowRight, ArrowUp, LucideIcon } from 'lucide-react';
+import { priorities } from '@/constants/shared';
 import { TaskFormData } from '../TaskDialogSchema';
-
-type Priority = {
-  value: Task['priority'];
-  icon: LucideIcon;
-};
-
-const priorities: Priority[] = [
-  {
-    value: 'Low',
-    icon: ArrowDown,
-  },
-  {
-    value: 'Medium',
-    icon: ArrowRight,
-  },
-  {
-    value: 'High',
-    icon: ArrowUp,
-  },
-];
 
 export default function TaskPriority() {
   const { control } = useFormContext<TaskFormData>();

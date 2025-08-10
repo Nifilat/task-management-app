@@ -23,7 +23,6 @@ import { type TaskFormData, taskFormSchema } from './TaskDialogSchema';
 import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 import { useOpenDialogStore } from '@/hooks/useOpenDialogStore';
 import { useEffect, useMemo, useState } from 'react';
-import { generateRandomThreeDigitNumber } from '@/functions/generateRandomNumber';
 import type { Task } from '@/data/types';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
@@ -33,7 +32,7 @@ export default function TaskDialog() {
     resolver: zodResolver(taskFormSchema),
   });
 
-  const { addTask, updateTasks, tasks, selectedTask, setSelectedTask } = useTasksDataStore();
+  const { addTask, selectedTask, setSelectedTask, fetchTasks } = useTasksDataStore();
 
   const { handleSubmit, reset } = methods;
 
@@ -68,21 +67,9 @@ export default function TaskDialog() {
     if (isEditing && selectedTask) {
       // Update existing
       try {
-        const updated: Task = {
-          ...selectedTask,
-          title: data.title,
-          status: data.status,
-          priority: data.priority,
-          label: data.label,
-        };
-        const base = tasks ?? [];
-        const next = base.map(t => (t.taskId === updated.taskId ? updated : t));
-        const result = await updateTasks(next, 'edit');
-        toast(result.success ? `Task ${updated.taskId} updated!` : 'Failed to update the task!', {
-          description: result.message,
-        });
+        // TODO: Implement task update service call
+        toast('Task update feature coming soon!');
         setIsOpen(false);
-        // Keep selectedTask selected or clear it after update; here we clear it
         setSelectedTask(null);
       } catch (error) {
         console.log(error);
@@ -97,13 +84,13 @@ export default function TaskDialog() {
 
     // Create new
     const newTask: Task = {
-      taskId: `Task-${generateRandomThreeDigitNumber()}`,
+      taskId: `Task-${Date.now()}`,
       title: data.title,
       status: data.status,
       priority: data.priority,
       label: data.label,
       isFavorite: false,
-      createdAt: new Date(),
+      userId: '', // Will be set in the store
     };
 
     try {
@@ -116,6 +103,7 @@ export default function TaskDialog() {
         }
       );
 
+      await fetchTasks(); // Refresh the tasks list
       reset();
       setIsOpen(false);
     } catch (error) {

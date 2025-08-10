@@ -1,17 +1,15 @@
 import { Task } from '@/data/types';
 import { Kind } from './types';
-import { useTasksDataStoreInterface } from '@/hooks/useTasksDataStore';
+import { taskService } from '@/services/taskService';
 import { toast } from 'sonner';
-import { generateRandomThreeDigitNumber } from '@/functions/generateRandomNumber';
 
 export async function handleMenuItemClick(
   kind: Kind,
-  tasks: Task[] | null,
   selectedTask: Task | null,
-  updateTasks: useTasksDataStoreInterface['updateTasks'],
+  refreshTasks: () => Promise<void>,
   onEdit?: () => void // ← Add edit callback
 ) {
-  if (!tasks || !selectedTask) return;
+  if (!selectedTask) return;
 
   switch (kind) {
     case 'edit':
@@ -20,46 +18,50 @@ export async function handleMenuItemClick(
       break;
 
     case 'favorite':
-      const taskToUpdate: Task = {
-        ...selectedTask,
-        isFavorite: !selectedTask.isFavorite,
-      };
-      const updateTasksArray = tasks.map(task =>
-        task.taskId === selectedTask.taskId ? taskToUpdate : task
-      );
-      const favoriteResult = await updateTasks(updateTasksArray);
-      if (!favoriteResult.success) {
-        toast('Operation failed', {
-          description: 'Something went wrong',
-        });
-      } else {
+      try {
+        await taskService.toggleFavorite(selectedTask.taskId, !selectedTask.isFavorite);
+        await refreshTasks();
         toast('Task updated!', {
-          description: favoriteResult.message,
+          description: `Task ${selectedTask.isFavorite ? 'removed from' : 'added to'} favorites`,
+        });
+      } catch (error) {
+        toast('Operation failed', {
+          description: 'Failed to update favorite status',
         });
       }
       break;
 
     case 'copy':
-      const copiedTask: Task = {
-        ...selectedTask,
-        taskId: `Task-${generateRandomThreeDigitNumber()}`,
-        title: `${selectedTask.title} - copy`,
-        createdAt: new Date(),
-      };
-      const addCopiedTask = [...tasks, copiedTask];
-      const result = await updateTasks(addCopiedTask, 'copy');
-      toast(`${result.success ? 'Copied successfully!' : 'Copy failed'}`, {
-        id: `copy-toast-${copiedTask.taskId}`,
-        description: result.message,
-      });
+      try {
+        const copiedTask = {
+          ...selectedTask,
+          taskId: `${selectedTask.taskId}-copy-${Date.now()}`,
+          title: `${selectedTask.title} - copy`,
+        };
+        await taskService.addTask(copiedTask);
+        await refreshTasks();
+        toast('Copied successfully!', {
+          description: 'Task has been duplicated',
+        });
+      } catch (error) {
+        toast('Copy failed', {
+          description: 'Failed to copy task',
+        });
+      }
       break;
 
     case 'delete':
-      const deleteTaskArray = tasks.filter(task => task.taskId !== selectedTask.taskId);
-      const deleteResult = await updateTasks(deleteTaskArray, 'delete');
-      toast(`${deleteResult.success ? 'Deleted successfully!' : 'Deletion failed'}`, {
-        description: deleteResult.message,
-      });
+      try {
+        await taskService.deleteTask(selectedTask.taskId);
+        await refreshTasks();
+        toast('Deleted successfully!', {
+          description: 'Task has been deleted',
+        });
+      } catch (error) {
+        toast('Deletion failed', {
+          description: 'Failed to delete task',
+        });
+      }
       break;
 
     default:

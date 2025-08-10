@@ -9,32 +9,14 @@ import {
 import { Task } from '@/data/types';
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { Controller, useFormContext } from 'react-hook-form';
+import { labels } from '@/constants/shared';
 import { TaskFormData } from '../TaskDialogSchema';
 
-type Label = {
+type LabelOption = {
   value: Task['label'];
 };
 
-const labels: Label[] = [
-  {
-    value: 'Bug',
-  },
-  {
-    value: 'Deployment',
-  },
-  {
-    value: 'Documentation',
-  },
-  {
-    value: 'Feature',
-  },
-  {
-    value: 'Refactoring',
-  },
-  {
-    value: 'Testing',
-  },
-];
+const labelOptions: LabelOption[] = labels.map(label => ({ value: label }));
 
 export default function TaskLabel() {
   const { control } = useFormContext<TaskFormData>();
@@ -59,7 +41,7 @@ export default function TaskLabel() {
               </SelectTrigger>
               <SelectContent className="poppins">
                 <SelectGroup>
-                  {labels.map((label, index) => (
+                  {labelOptions.map((label, index) => (
                     <SelectItem key={index} value={label.value}>
                       <div className="flex items-center gap-2">
                         <span>{label.value}</span>

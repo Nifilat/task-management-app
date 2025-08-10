@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Raleway } from 'next/font/google';
 import './globals.css';
 import AppProviders from '@/components/providers';
+import { Toaster } from '@/components/ui/sonner';
 
 const raleway = Raleway({
   variable: '--font-raleway',
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${raleway.variable} antialiased`}>
         <AppProviders>{children}</AppProviders>
+        <Toaster />
       </body>
     </html>
   );
