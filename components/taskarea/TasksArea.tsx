@@ -14,49 +14,75 @@ import ViewColumnsDropDown from '../dropdown/ViewColumnsDropdown';
 import { TasksTable } from './TasksTable';
 import TableSkeleton from './TableSkeleton';
 import { tasksColumns } from './TaskColumns';
-import { useTasksDataStore } from '@/hooks/useTasksDataStore';
-import { useReactTable, ColumnFiltersState, getCoreRowModel, getFilteredRowModel } from '@tanstack/react-table';
-import { priorityFilter, statusFilter, titleFilter } from '@/utils/tableFilters';
+import { 
+  useReactTable, 
+  ColumnFiltersState, 
+  SortingState,
+  getCoreRowModel, 
+  getFilteredRowModel,
+  getSortedRowModel,
+  getPaginationRowModel,
+} from '@tanstack/react-table';
 import PaginationArea from './pagination/PaginationArea';
 import { tasks } from '@/data/tasks-data';
 
 const TasksArea = () => {
-  const { setCheckedPriorities, checkedPriorities} = useCheckedPrioritiesStore();
-    const { setCheckedStatuses, checkedStatuses} = useCheckedStatusesStore();
-    // const { tasks } = useTasksDataStore();
+  const { setCheckedPriorities, checkedPriorities } = useCheckedPrioritiesStore();
+  const { setCheckedStatuses, checkedStatuses } = useCheckedStatusesStore();
+  const { query } = useQueryStore();
 
+  // State for table
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
 
-    const { query } = useQueryStore();
-    const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-    const table = useReactTable({
-        data: tasks || [],
-        columns: tasksColumns,
-        getCoreRowModel: getCoreRowModel(),
-        getFilteredRowModel: getFilteredRowModel(),
-        onColumnFiltersChange: setColumnFilters,
-        state: {
-            columnFilters,
-        },
-        filterFns: { titleFilter, priorityFilter, statusFilter },
+  const table = useReactTable({
+    data: tasks || [],
+    columns: tasksColumns,
+    state: {
+      columnFilters,
+      sorting, // ← ADD THIS
+    },
+    onColumnFiltersChange: setColumnFilters,
+    onSortingChange: setSorting, // ← ADD THIS
+    getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getSortedRowModel: getSortedRowModel(), // ← ADD THIS
+    getPaginationRowModel: getPaginationRowModel(), // ← ADD THIS
+    // Remove the filterFns property - it should be in column definitions
+    // debugTable: true, // ← Add this temporarily to debug
+  });
+
+  useEffect(() => {
+    const newFilters: ColumnFiltersState = [];
+
+    if (query) {
+      newFilters.push({ id: 'title', value: query });
+    }
+    
+    if (checkedPriorities.length > 0) {
+      newFilters.push({ id: 'priority', value: checkedPriorities });
+    }
+    
+    if (checkedStatuses.length > 0) {
+      newFilters.push({ id: 'status', value: checkedStatuses });
+    }
+
+    setColumnFilters(newFilters);
+  }, [query, checkedPriorities, checkedStatuses]);
+
+  // Debug logging (remove in production)
+  useEffect(() => {
+    console.log('Table state:', {
+      columnFilters,
+      sorting,
+      filteredRowCount: table.getFilteredRowModel().rows.length,
+      totalRowCount: table.getCoreRowModel().rows.length,
+      checkedPriorities,
+      checkedStatuses,
+      query
     });
+  }, [columnFilters, sorting, table, checkedPriorities, checkedStatuses, query]);
 
-    useEffect(() => {
-        const newFilter: ColumnFiltersState = [];
-
-        if(query) {
-            newFilter.push({ id: 'title', value: query});
-        }
-        
-        if(checkedPriorities.length > 0) {
-            newFilter.push({ id: 'priority', value: checkedPriorities});
-        }
-        
-        if(checkedStatuses.length > 0) {
-            newFilter.push({ id: 'status', value: checkedStatuses});
-        }
-
-        setColumnFilters(newFilter);
-    }, [query, checkedPriorities, checkedStatuses]);
   return (
     <div className="px-7 mt-5">
       <Card>
@@ -64,27 +90,37 @@ const TasksArea = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <SearchInput />
-              {/* status drop down */}
               <StatusDropdown />
-              {/* priority drop down */}
               <PriorityDropdown />
 
-              <Button onClick={() => {setCheckedPriorities([]); setCheckedStatuses([]); }} variant={'ghost'} className="h-10">
+              <Button 
+                onClick={() => {
+                  setCheckedPriorities([]); 
+                  setCheckedStatuses([]);
+                  // Also clear the search query if needed
+                  // setQuery('');
+                }} 
+                variant={'ghost'} 
+                className="h-10"
+              >
                 <span>Reset</span>
                 <X />
               </Button>
             </div>
 
-            {/* DropDownViewColumns */}
-            <ViewColumnsDropDown table={table}/>
+            <ViewColumnsDropDown table={table} />
           </div>
         </CardHeader>
-        <CardContent>{!tasks ? (
-                        <TableSkeleton />
-                    ) : (
-                        <TasksTable columns={tasksColumns} table={table} />
-                    )}</CardContent>
-        <CardFooter><PaginationArea /></CardFooter>
+        <CardContent>
+          {!tasks ? (
+            <TableSkeleton />
+          ) : (
+            <TasksTable columns={tasksColumns} table={table} />
+          )}
+        </CardContent>
+        <CardFooter>
+          <PaginationArea />
+        </CardFooter>
       </Card>
     </div>
   );
