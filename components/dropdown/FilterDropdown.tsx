@@ -45,10 +45,10 @@ function FilterDropdown<T extends string>({
       return (
         <>
           <Separator orientation="vertical" className="h-6 border-1 border-gray-300" />
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {selectedItems.map((item, index) => (
-              <Badge key={index} variant="secondary">
-                {item}
+              <Badge key={index} variant="secondary" className="text-xs px-1 sm:px-2">
+                <span className="truncate max-w-[60px] sm:max-w-none">{item}</span>
               </Badge>
             ))}
           </div>
@@ -59,7 +59,9 @@ function FilterDropdown<T extends string>({
     return (
       <>
         <Separator orientation="vertical" className="h-6 border-1 border-gray-300" />
-        <Badge variant="secondary">{selectedCount} Selected</Badge>
+        <Badge variant="secondary" className="text-xs px-1 sm:px-2">
+          {selectedCount} Selected
+        </Badge>
       </>
     );
   };
@@ -68,35 +70,53 @@ function FilterDropdown<T extends string>({
     <div className="flex items-center space-x-4">
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button size="sm" variant="outline" className="h-8 justify-start border-dashed px-5">
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2">
-                <CirclePlus />
-                <span>{title}</span>
+          <Button
+            size="sm"
+            variant="outline"
+            className="h-8 justify-start border-dashed px-2 sm:px-5 min-w-0"
+          >
+            <div className="flex items-center gap-2 sm:gap-4 min-w-0 overflow-hidden">
+              <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
+                <CirclePlus className="h-4 w-4" />
+                <span className="text-xs sm:text-sm">{title}</span>
               </div>
-              {renderBadges()}
+              <div className="min-w-0 overflow-hidden">{renderBadges()}</div>
             </div>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 w-52" side="bottom" align="center">
+        <PopoverContent
+          className="p-0 w-64 sm:w-72"
+          side="bottom"
+          align="start"
+          sideOffset={4}
+          avoidCollisions={true}
+          collisionPadding={8}
+        >
           <Command>
-            <CommandInput placeholder={placeholder} />
-            <CommandList>
+            <CommandInput placeholder={placeholder} className="text-sm" />
+            <CommandList className="max-h-64">
               <CommandEmpty>No results found.</CommandEmpty>
               <CommandGroup>
                 {items.map(item => (
                   <CommandItem
                     key={item.value}
                     value={item.value}
-                    className="flex justify-between"
+                    className="flex justify-between items-center py-2"
                     onSelect={() => updateSelection(item.label)}
                   >
-                    <div className="flex items-center gap-2">
-                      <Checkbox checked={selectedItems.includes(item.label as T)} />
-                      <item.icon />
-                      <span>{item.label}</span>
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <Checkbox
+                        checked={selectedItems.includes(item.label as T)}
+                        className="flex-shrink-0"
+                      />
+                      <div className="flex-shrink-0">
+                        <item.icon />
+                      </div>
+                      <span className="truncate flex-1 text-sm">{item.label}</span>
                     </div>
-                    <pre>{item.count}</pre>
+                    <span className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded ml-2 flex-shrink-0">
+                      {item.count}
+                    </span>
                   </CommandItem>
                 ))}
               </CommandGroup>

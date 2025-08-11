@@ -12,27 +12,22 @@ const PriorityDropdown = () => {
   const { tasks } = useTasksDataStore();
 
   const priorityItemsWithCounts: DropdownItem<Priority>[] = useMemo(() => {
-    if (!tasks || tasks.length === 0) return PRIORITY_ITEMS;
+    const priorityItemsWithCounts = PRIORITY_ITEMS.map(item => ({
+      ...item,
+      count: 0,
+    }));
 
-    const priorityMap = tasks.reduce(
-      (acc, task) => {
-        const label = task.priority as Priority;
-        if (!acc[label]) {
-          const foundItem = PRIORITY_ITEMS.find(i => i.label === label);
-          acc[label] = {
-            value: foundItem?.value ?? label.toLowerCase(),
-            label,
-            icon: foundItem?.icon ?? (() => null),
-            count: 0,
-          };
+    if (tasks && tasks.length > 0) {
+      tasks.forEach(task => {
+        const taskPriority = task.priority as Priority;
+        const priorityItem = priorityItemsWithCounts.find(item => item.label === taskPriority);
+        if (priorityItem) {
+          priorityItem.count++;
         }
-        acc[label].count++;
-        return acc;
-      },
-      {} as Record<Priority, DropdownItem<Priority>>
-    );
+      });
+    }
 
-    return Object.values(priorityMap);
+    return priorityItemsWithCounts;
   }, [tasks]);
 
   return (

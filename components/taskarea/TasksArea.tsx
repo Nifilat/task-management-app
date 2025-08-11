@@ -85,7 +85,6 @@ const TasksArea = () => {
     setColumnFilters(newFilters);
   }, [query, checkedPriorities, checkedStatuses]);
 
-  // Debug logging (remove in production)
   useEffect(() => {}, [columnFilters, sorting, table, checkedPriorities, checkedStatuses, query]);
 
   if (!user) {
@@ -93,15 +92,43 @@ const TasksArea = () => {
   }
 
   return (
-    <div className="px-7 mt-5">
+    <div className="px-4 sm:px-7 mt-5">
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+        <CardHeader className="space-y-4">
+          <div className="flex flex-col space-y-3 md:hidden">
+            <div className="w-full">
               <SearchInput />
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2 justify-between">
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusDropdown />
+                <PriorityDropdown />
+                <Button
+                  onClick={() => {
+                    setCheckedPriorities([]);
+                    setCheckedStatuses([]);
+                  }}
+                  variant={'ghost'}
+                  className="h-8"
+                  size="sm"
+                >
+                  <span>Reset</span>
+                  <X className="ml-1 h-4 w-4" />
+                </Button>
+              </div>
+
+              <ViewColumnsDropDown table={table} />
+            </div>
+          </div>
+
+          <div className="hidden md:flex md:items-center md:justify-between">
+            <div className="flex items-center gap-2 flex-1 max-w-2xl">
+              <div className="flex-1 min-w-0">
+                <SearchInput />
+              </div>
               <StatusDropdown />
               <PriorityDropdown />
-
               <Button
                 onClick={() => {
                   setCheckedPriorities([]);
@@ -111,17 +138,21 @@ const TasksArea = () => {
                 className="h-10"
               >
                 <span>Reset</span>
-                <X />
+                <X className="ml-1 h-4 w-4" />
               </Button>
             </div>
 
-            <ViewColumnsDropDown table={table} />
+            <div className="ml-4">
+              <ViewColumnsDropDown table={table} />
+            </div>
           </div>
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="px-4 sm:px-6">
           {loading ? <TableSkeleton /> : <TasksTable columns={tasksColumns} table={table} />}
         </CardContent>
-        <CardFooter>
+
+        <CardFooter className="px-4 sm:px-6">
           <PaginationArea table={table} />
         </CardFooter>
       </Card>

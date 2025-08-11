@@ -12,27 +12,22 @@ const StatusDropdown = () => {
   const { tasks } = useTasksDataStore();
 
   const statusItemsWithCounts: DropdownItem<Status>[] = useMemo(() => {
-    if (!tasks || tasks.length === 0) return STATUS_ITEMS;
+    const statusItemsWithCounts = STATUS_ITEMS.map(item => ({
+      ...item,
+      count: 0,
+    }));
 
-    const statusMap = tasks.reduce(
-      (acc, task) => {
-        const label = task.status as Status;
-        if (!acc[label]) {
-          const foundItem = STATUS_ITEMS.find(i => i.label === label);
-          acc[label] = {
-            value: foundItem?.value ?? label.toLowerCase().replace(/\s+/g, '-'),
-            label,
-            icon: foundItem?.icon ?? (() => null),
-            count: 0,
-          };
+    if (tasks && tasks.length > 0) {
+      tasks.forEach(task => {
+        const taskStatus = task.status as Status;
+        const statusItem = statusItemsWithCounts.find(item => item.label === taskStatus);
+        if (statusItem) {
+          statusItem.count++;
         }
-        acc[label].count++;
-        return acc;
-      },
-      {} as Record<Status, DropdownItem<Status>>
-    );
+      });
+    }
 
-    return Object.values(statusMap);
+    return statusItemsWithCounts;
   }, [tasks]);
 
   return (
