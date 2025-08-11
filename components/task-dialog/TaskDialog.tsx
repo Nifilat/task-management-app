@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '../ui/button';
+import { Plus } from 'lucide-react';
 import {
   Dialog,
   DialogClose,
@@ -105,8 +106,10 @@ export default function TaskDialog() {
         setIsOpen(open, 'create', null);
       }}
     >
+      {/* Desktop Add Task Button */}
       <DialogTrigger asChild>
         <Button
+          className="hidden md:inline-flex"
           onClick={() => {
             setSelectedTask(null);
             setIsOpen(true);
@@ -114,6 +117,20 @@ export default function TaskDialog() {
         >
           Add New Task
         </Button>
+      </DialogTrigger>
+
+      {/* Mobile Plus Icon Button */}
+      <DialogTrigger asChild>
+        <button
+          aria-label="Add task"
+          className="inline-flex md:hidden fixed bottom-4 right-4 z-50 p-3 rounded-full bg-primary text-white shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          onClick={() => {
+            setSelectedTask(null);
+            setIsOpen(true);
+          }}
+        >
+          <Plus className="w-6 h-6" />
+        </button>
       </DialogTrigger>
 
       <DialogContent className="max-w-4xl">
