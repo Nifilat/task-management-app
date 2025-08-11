@@ -25,17 +25,13 @@ export function MenuItem({
   const { user } = useAuth();
 
   const handleEdit = () => {
-    setIsOpen(true);
-    // selectedTask is already set, so the dialog will open in edit mode
+    if (selectedTask) {
+      setIsOpen(true, 'edit', selectedTask);
+    }
   };
 
   const handleClick = () => {
-    handleMenuItemClick(
-      kind,
-      selectedTask,
-      () => fetchTasks(user?.uid ?? ''),
-      handleEdit 
-    );
+    handleMenuItemClick(kind, selectedTask, () => fetchTasks(user?.uid ?? ''), handleEdit);
   };
 
   return (

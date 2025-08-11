@@ -2,6 +2,7 @@ import { Task } from '@/data/types';
 import { Kind } from './types';
 import { taskService } from '@/services/taskService';
 import { toast } from 'sonner';
+import useTasksDataStore from '@/hooks/useTasksDataStore';
 
 export async function handleMenuItemClick(
   kind: Kind,
@@ -13,18 +14,19 @@ export async function handleMenuItemClick(
 
   switch (kind) {
     case 'edit':
-      // Trigger edit mode
       onEdit?.();
       break;
 
     case 'favorite':
       try {
-        await taskService.toggleFavorite(selectedTask.taskId, !selectedTask.isFavorite);
+        const { success, message } = await useTasksDataStore
+          .getState()
+          .toggleFavorite(selectedTask.taskId, !selectedTask.isFavorite);
+        if (!success) throw new Error(message);
+
         await refreshTasks();
-        toast('Task updated!', {
-          description: `Task ${selectedTask.isFavorite ? 'removed from' : 'added to'} favorites`,
-        });
-      } catch (error) {
+        toast('Task updated!', { description: message });
+      } catch {
         toast('Operation failed', {
           description: 'Failed to update favorite status',
         });
@@ -43,7 +45,7 @@ export async function handleMenuItemClick(
         toast('Copied successfully!', {
           description: 'Task has been duplicated',
         });
-      } catch (error) {
+      } catch {
         toast('Copy failed', {
           description: 'Failed to copy task',
         });
@@ -52,15 +54,15 @@ export async function handleMenuItemClick(
 
     case 'delete':
       try {
-        await taskService.deleteTask(selectedTask.taskId);
+        const { success, message } = await useTasksDataStore
+          .getState()
+          .deleteTask(selectedTask.taskId);
+        if (!success) throw new Error(message);
+
         await refreshTasks();
-        toast('Deleted successfully!', {
-          description: 'Task has been deleted',
-        });
-      } catch (error) {
-        toast('Deletion failed', {
-          description: 'Failed to delete task',
-        });
+        toast('Deleted successfully!', { description: message });
+      } catch {
+        toast('Deletion failed', { description: 'Failed to delete task' });
       }
       break;
 

@@ -23,38 +23,37 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { type TaskFormData, taskFormSchema } from './TaskDialogSchema';
 import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 import { useOpenDialogStore } from '@/hooks/useOpenDialogStore';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { Task } from '@/data/types';
 import { toast } from 'sonner';
-import { Loader2 } from 'lucide-react';
 
 export default function TaskDialog() {
   const methods = useForm<TaskFormData>({
     resolver: zodResolver(taskFormSchema),
+    defaultValues: {
+      title: '',
+      status: 'Backlog',
+      priority: 'Low',
+      label: 'Bug',
+    },
   });
 
-  const { addTask, selectedTask, setSelectedTask, fetchTasks } = useTasksDataStore();
-
+  const { addTask, updateTask, setSelectedTask, fetchTasks } = useTasksDataStore();
   const { user } = useAuth();
-
   const { handleSubmit, reset } = methods;
-
-  const { isOpen, setIsOpen } = useOpenDialogStore();
+  const { taskToEdit, mode, isOpen, setIsOpen } = useOpenDialogStore();
+  const isEditing = mode === 'edit';
   const [isLoading, setIsLoading] = useState(false);
 
-  const isEditing = useMemo(() => Boolean(selectedTask), [selectedTask]);
-
-  // Prefill when editing
   useEffect(() => {
-    if (selectedTask) {
+    if (taskToEdit) {
       reset({
-        title: selectedTask.title,
-        status: selectedTask.status,
-        priority: selectedTask.priority,
-        label: selectedTask.label,
+        title: taskToEdit.title,
+        status: taskToEdit.status,
+        priority: taskToEdit.priority,
+        label: taskToEdit.label,
       });
     } else {
-      // Optional: set defaults for new task
       reset({
         title: '',
         status: 'Backlog',
@@ -62,121 +61,91 @@ export default function TaskDialog() {
         label: 'Bug',
       });
     }
-  }, [selectedTask, reset]);
+  }, [taskToEdit, reset]);
 
   const onSubmit = async (data: TaskFormData) => {
     setIsLoading(true);
-
-    if (isEditing && selectedTask) {
-      // Update existing
-      try {
-        // TODO: Implement task update service call
-        toast('Task update feature coming soon!');
-        setIsOpen(false);
-        setSelectedTask(null);
-      } catch (error) {
-        console.log(error);
-        toast('Failed to update the task!', {
-          description: 'An unexpected error occurred.',
-        });
-      } finally {
-        setIsLoading(false);
-      }
-      return;
-    }
-
-    // Create new
-    const newTask: Task = {
-      taskId: '',
-      title: data.title,
-      status: data.status,
-      priority: data.priority,
-      label: data.label,
-      isFavorite: false,
-      userId: '',
-      createdAt: new Date(),
-    };
-
     try {
-      const result = await addTask(newTask, user?.uid ?? '');
-      await fetchTasks(user?.uid ?? '');
-      toast(
-        `${result.success ? `The Task ${newTask.taskId} added successfully!` : 'Failed to add the task!'}`,
-        {
-          id: `add-toast-${newTask.taskId}`,
-          description: result.message,
-        }
-      );
+      if (isEditing && taskToEdit && user?.uid) {
+        const result = await updateTask(taskToEdit.taskId, data);
+        toast(
+          result.success
+            ? `Task ${taskToEdit.taskId} updated successfully!`
+            : `Failed to update task ${taskToEdit.taskId}`,
+          { description: result.message }
+        );
+      } else {
+        const newTask: Task = {
+          taskId: '',
+          ...data,
+          isFavorite: false,
+          userId: user?.uid ?? '',
+          createdAt: new Date(),
+        };
+        const result = await addTask(newTask);
+        toast(result.message);
+      }
 
-      if (user?.uid) {
-        await fetchTasks(user.uid);
-      } // Refresh the tasks list
+      if (user?.uid) await fetchTasks(user.uid);
+
       reset();
       setIsOpen(false);
     } catch (error) {
-      console.log(error);
-
-      toast('Failed to add the task!', {
-        description: 'An unexpected error occurred.',
-      });
+      console.error(error);
+      toast('Operation failed!');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // When dialog closes by outside click or close button, clear editing state
-  const handleOpenChange = (open: boolean) => {
-    setIsOpen(open);
-    if (!open) {
-      setSelectedTask(null);
-    }
-  };
-
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={open => {
+        setIsOpen(open, 'create', null);
+      }}
+    >
       <DialogTrigger asChild>
-        <Button onClick={() => setSelectedTask(null)}>Add New Task</Button>
+        <Button
+          onClick={() => {
+            setSelectedTask(null);
+            setIsOpen(true);
+          }}
+        >
+          Add New Task
+        </Button>
       </DialogTrigger>
-      <DialogContent className="poppins max-w-4xl">
+
+      <DialogContent className="max-w-4xl">
         <DialogHeader>
-          <DialogTitle className="text-xl">{isEditing ? 'Edit Task' : 'Add New Task'}</DialogTitle>
+          <DialogTitle>{isEditing ? 'Edit Task' : 'Add New Task'}</DialogTitle>
           <DialogDescription>
-            {isEditing
-              ? 'Update the fields and save your changes'
-              : 'Fill in the form to add a task'}
+            {isEditing ? 'Update and save your changes' : 'Fill in the form to add a task'}
           </DialogDescription>
-          <div className="mt-4">
-            <Separator className="mt-3" />
-          </div>
+          <Separator className="mt-3" />
         </DialogHeader>
+
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="my-8">
-              <div className="grid grid-cols-2 gap-5">
-                <TaskTitle />
-                <TaskStatus />
-              </div>
-              <div className="grid grid-cols-2 gap-5 mt-6">
-                <TaskPriority />
-                <TaskLabel />
-              </div>
+            <div className="my-8 grid grid-cols-2 gap-5">
+              <TaskTitle />
+              <TaskStatus />
+              <TaskPriority />
+              <TaskLabel />
             </div>
-            <DialogFooter className="mb-4 mt-9">
+            <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" variant={'secondary'} className="px-9">
+                <Button type="button" variant="secondary">
                   Close
                 </Button>
               </DialogClose>
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {isEditing ? 'Saving Changes...' : 'Adding Task...'}
-                  </>
+                  <>{isEditing ? 'Saving...' : 'Adding...'}</>
                 ) : isEditing ? (
                   'Save Changes'
                 ) : (
-                  'Add New Task'
+                  'Add Task'
                 )}
               </Button>
             </DialogFooter>

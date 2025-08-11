@@ -1,11 +1,16 @@
 import { create } from 'zustand';
+import { Task } from '@/data/types';
 
 interface useOpenDialogStoreInterface {
   isOpen: boolean;
-  setIsOpen: (isOpen: boolean) => void;
+  mode: 'create' | 'edit';
+  taskToEdit?: Task | null;
+  setIsOpen: (isOpen: boolean, mode?: 'create' | 'edit', task?: Task | null) => void;
 }
 
 export const useOpenDialogStore = create<useOpenDialogStoreInterface>(set => ({
   isOpen: false,
-  setIsOpen: (isOpen: boolean) => set({ isOpen }),
+  mode: 'create',
+  taskToEdit: null,
+  setIsOpen: (isOpen, mode = 'create', task = null) => set({ isOpen, mode, taskToEdit: task }),
 }));

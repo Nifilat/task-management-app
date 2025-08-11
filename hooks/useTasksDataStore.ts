@@ -1,6 +1,7 @@
 import { Task } from '@/data/types';
 import { taskService } from '@/services/taskService';
 import { create } from 'zustand';
+import { auth } from '@/config/firebase';
 
 export interface useTasksDataStoreInterface {
   tasks: Task[] | null;
@@ -8,13 +9,12 @@ export interface useTasksDataStoreInterface {
   selectedTask: Task | null;
   setSelectedTask: (task: Task | null) => void;
   fetchTasks: (userId: string) => Promise<void>;
-  updateTasks: (
-    tasks: Task[],
-    operation?: string | undefined
+  updateTask: (
+    taskId: string,
+    updates: Partial<Task>
   ) => Promise<{ success: boolean; message: string }>;
   addTask: (
-    task: Omit<Task, 'createdAt'>,
-    userId: string
+    task: Omit<Task, 'id' | 'taskId' | 'createdAt'>
   ) => Promise<{ success: boolean; message: string }>;
   deleteTask: (taskId: string) => Promise<{ success: boolean; message: string }>;
   toggleFavorite: (
@@ -28,13 +28,10 @@ export const useTasksDataStore = create<useTasksDataStoreInterface>((set, get) =
   loading: false,
   selectedTask: null,
 
-  setSelectedTask: task => {
-    set({ selectedTask: task });
-  },
+  setSelectedTask: task => set({ selectedTask: task }),
 
   fetchTasks: async (userId: string) => {
     if (!userId) return;
-
     set({ loading: true });
     try {
       const userTasks = await taskService.getUserTasks(userId);
@@ -47,74 +44,63 @@ export const useTasksDataStore = create<useTasksDataStoreInterface>((set, get) =
     }
   },
 
-  updateTasks: async (updatedTasksArray: Task[], operation?: string) => {
+  updateTask: async (taskId, updates) => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return { success: false, message: 'User not authenticated!' };
     try {
-      // This method is kept for compatibility but should be replaced with specific operations
-      set({ tasks: updatedTasksArray });
-      return {
-        success: true,
-        message: 'Tasks updated successfully!',
-      };
+      await taskService.updateTask(taskId, updates, userId);
+      set(state => ({
+        tasks:
+          state.tasks?.map(task => (task.taskId === taskId ? { ...task, ...updates } : task)) ||
+          null,
+      }));
+      return { success: true, message: 'Task updated successfully!' };
     } catch (error) {
-      console.error('Error updating tasks:', error);
-      return { success: false, message: 'Failed to update tasks!' };
+      console.error('Error updating task:', error);
+      return { success: false, message: 'Failed to update task!' };
     }
   },
 
-  addTask: async (task: Omit<Task, 'createdAt'>, userId: string) => {
-    if (!userId) {
-      return { success: false, message: 'User not authenticated!' };
-    }
-
+  addTask: async task => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return { success: false, message: 'User not authenticated!' };
     try {
-      const taskWithUser = { ...task, userId };
-      await taskService.addTask(taskWithUser);
-
-      // Refresh tasks
-      await get().fetchTasks(userId);
-
-      return {
-        success: true,
-        message: 'Task added successfully!',
-      };
+      const taskId = await taskService.addTask({ ...task, userId });
+      set(state => ({
+        tasks: [{ ...task, taskId, userId, createdAt: new Date() }, ...(state.tasks || [])],
+      }));
+      return { success: true, message: 'Task added successfully!' };
     } catch (error) {
       console.error('Error adding task:', error);
       return { success: false, message: 'Failed to add task!' };
     }
   },
 
-  deleteTask: async (taskId: string) => {
+  deleteTask: async taskId => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return { success: false, message: 'User not authenticated!' };
     try {
-      await taskService.deleteTask(taskId);
-
-      // Remove from local state
+      await taskService.deleteTask(taskId, userId);
       set(state => ({
-        tasks:
-          state.tasks?.filter(task => task.taskId !== taskId && task.taskId !== taskId) || null,
+        tasks: state.tasks?.filter(task => task.taskId !== taskId) || null,
       }));
-
-      return {
-        success: true,
-        message: 'Task deleted successfully!',
-      };
+      return { success: true, message: 'Task deleted successfully!' };
     } catch (error) {
       console.error('Error deleting task:', error);
       return { success: false, message: 'Failed to delete task!' };
     }
   },
 
-  toggleFavorite: async (taskId: string, isFavorite: boolean) => {
+  toggleFavorite: async (taskId, isFavorite) => {
+    const userId = auth.currentUser?.uid;
+    if (!userId) return { success: false, message: 'User not authenticated!' };
     try {
-      await taskService.toggleFavorite(taskId, isFavorite);
-
-      // Update local state - check both id and taskId for compatibility
+      await taskService.toggleFavorite(taskId, isFavorite, userId);
       set(state => ({
         tasks:
-          state.tasks?.map(task =>
-            task.taskId === taskId || task.taskId === taskId ? { ...task, isFavorite } : task
-          ) || null,
+          state.tasks?.map(task => (task.taskId === taskId ? { ...task, isFavorite } : task)) ||
+          null,
       }));
-
       return {
         success: true,
         message: `Task ${isFavorite ? 'added to' : 'removed from'} favorites!`,
@@ -125,3 +111,5 @@ export const useTasksDataStore = create<useTasksDataStoreInterface>((set, get) =
     }
   },
 }));
+
+export default useTasksDataStore;

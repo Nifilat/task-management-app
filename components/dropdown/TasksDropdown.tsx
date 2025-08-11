@@ -11,11 +11,10 @@ import {
 import { useEffect, useState } from 'react';
 import { LucideEllipsis, Trash } from 'lucide-react';
 import { MENU_ITEMS } from './constants';
-import { labels } from '@/constants/shared';
 import { MenuItem } from './MenuItems';
 import { SubLabelMenu } from './SubLabelMenu';
 import { useTasksDataStore } from '@/hooks/useTasksDataStore';
-import { Label, Task } from '@/data/types';
+import { Label } from '@/data/types';
 import { toast } from 'sonner';
 
 interface TasksDropdownProps {
@@ -25,7 +24,7 @@ interface TasksDropdownProps {
 
 export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
   const [selectedLabel, setSelectedLabel] = useState<Label>('Bug');
-  const { selectedTask, tasks } = useTasksDataStore();
+  const { selectedTask, updateTask } = useTasksDataStore();
   const [menuItemsArray, setMenuItemsArray] = useState(MENU_ITEMS);
 
   useEffect(() => {
@@ -48,17 +47,37 @@ export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
     }
   }, [selectedTask]);
 
-  const handleLabelChange = async (newLabel: string) => {
-    if (!labels.includes(newLabel as Label) || !selectedTask || !tasks) return;
+  const clickedLabelItem = async (newLabel: string) => {
+    const validLabels: Label[] = [
+      'Bug',
+      'Deployment',
+      'Documentation',
+      'Feature',
+      'Refactoring',
+      'Testing',
+    ];
 
-    const updatedTask: Task = { ...selectedTask, label: newLabel as Label };
+    if (!validLabels.includes(newLabel as Label)) {
+      console.error(`The type ${newLabel} is incorrect`);
+      return;
+    }
 
-    // TODO: Implement task update service call
-    toast('Label update feature coming soon!');
-  };
+    if (selectedTask) {
+      try {
+        const result = await updateTask(selectedTask.taskId, {
+          label: newLabel as Label,
+        });
 
-  const handleLabelValueChange = (value: string) => {
-    setSelectedLabel(value as Label);
+        toast(
+          result.success
+            ? `${selectedTask.taskId} Updated successfully!`
+            : `${selectedTask.taskId} Update failed`,
+          { description: result.message }
+        );
+      } catch (error) {
+        console.error('Failed to update tasks:', error);
+      }
+    }
   };
 
   return (
@@ -68,7 +87,7 @@ export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
           <LucideEllipsis />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 poppins">
+      <DropdownMenuContent className="w-56">
         <DropdownMenuGroup>
           {menuItemsArray.map(item => (
             <MenuItem
@@ -85,9 +104,9 @@ export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
 
         <DropdownMenuGroup>
           <SubLabelMenu
-            onClickedLabelItem={handleLabelChange}
+            onClickedLabelItem={clickedLabelItem}
             value={selectedLabel}
-            onValueChange={handleLabelValueChange}
+            onValueChange={(value: string) => setSelectedLabel(value as Label)}
           />
           <DropdownMenuSeparator />
           <MenuItem
