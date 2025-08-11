@@ -124,15 +124,21 @@ const SortableHeader = ({ column, label }: SortableHeaderProps) => {
 export const tasksColumns: ColumnDef<Task>[] = [
   {
     id: 'select',
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() || (table.getIsSomePageRowsSelected() && 'indeterminate')
-        }
-        onCheckedChange={value => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
+    header: ({ table }) => {
+      const allPageRowsSelected = table.getRowModel().rows.every(row => row.getIsSelected());
+      const somePageRowsSelected =
+        !allPageRowsSelected && table.getRowModel().rows.some(row => row.getIsSelected());
+
+      return (
+        <Checkbox
+          checked={allPageRowsSelected || (somePageRowsSelected && 'indeterminate')}
+          onCheckedChange={value =>
+            table.getRowModel().rows.forEach(row => row.toggleSelected(!!value))
+          }
+          aria-label="Select all on current page"
+        />
+      );
+    },
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
@@ -170,7 +176,7 @@ export const tasksColumns: ColumnDef<Task>[] = [
         </div>
       );
     },
-    filterFn: titleFilter, // ← ADD THIS
+    filterFn: titleFilter,
     enableSorting: true,
   },
   {
@@ -186,7 +192,7 @@ export const tasksColumns: ColumnDef<Task>[] = [
         </div>
       );
     },
-    filterFn: statusFilter, // ← ADD THIS
+    filterFn: statusFilter,
     enableSorting: true,
   },
   {
@@ -202,7 +208,7 @@ export const tasksColumns: ColumnDef<Task>[] = [
         </div>
       );
     },
-    filterFn: priorityFilter, // ← ADD THIS
+    filterFn: priorityFilter,
     enableSorting: true,
   },
   {

@@ -34,8 +34,14 @@ const TasksArea = () => {
   const { tasks, loading, fetchTasks } = useTasksDataStore();
   const { user } = useAuth();
 
+  const columns = tasksColumns;
+
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   useEffect(() => {
     if (user) {
@@ -46,13 +52,15 @@ const TasksArea = () => {
 
   const table = useReactTable({
     data: tasks || [],
-    columns: tasksColumns,
+    columns,
     state: {
-      columnFilters,
       sorting,
+      columnFilters,
+      pagination,
     },
-    onColumnFiltersChange: setColumnFilters,
     onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -78,19 +86,8 @@ const TasksArea = () => {
   }, [query, checkedPriorities, checkedStatuses]);
 
   // Debug logging (remove in production)
-  useEffect(() => {
-    console.log('Table state:', {
-      columnFilters,
-      sorting,
-      filteredRowCount: table.getFilteredRowModel().rows.length,
-      totalRowCount: table.getCoreRowModel().rows.length,
-      checkedPriorities,
-      checkedStatuses,
-      query,
-    });
-  }, [columnFilters, sorting, table, checkedPriorities, checkedStatuses, query]);
+  useEffect(() => {}, [columnFilters, sorting, table, checkedPriorities, checkedStatuses, query]);
 
-  // Show loading if user is not available yet
   if (!user) {
     return <TableSkeleton />;
   }
@@ -109,8 +106,6 @@ const TasksArea = () => {
                 onClick={() => {
                   setCheckedPriorities([]);
                   setCheckedStatuses([]);
-                  // Also clear the search query if needed
-                  // setQuery('');
                 }}
                 variant={'ghost'}
                 className="h-10"
@@ -127,7 +122,7 @@ const TasksArea = () => {
           {loading ? <TableSkeleton /> : <TasksTable columns={tasksColumns} table={table} />}
         </CardContent>
         <CardFooter>
-          <PaginationArea />
+          <PaginationArea table={table} />
         </CardFooter>
       </Card>
     </div>

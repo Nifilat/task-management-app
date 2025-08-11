@@ -7,7 +7,11 @@ export interface useTasksDataStoreInterface {
   tasks: Task[] | null;
   loading: boolean;
   selectedTask: Task | null;
+  currentPage: number;
+  rowsPerPage: number;
   setSelectedTask: (task: Task | null) => void;
+  setCurrentPage: (page: number) => void;
+  setRowsPerPage: (rows: number) => void;
   fetchTasks: (userId: string) => Promise<void>;
   updateTask: (
     taskId: string,
@@ -27,8 +31,12 @@ export const useTasksDataStore = create<useTasksDataStoreInterface>((set, get) =
   tasks: null,
   loading: false,
   selectedTask: null,
+  currentPage: 1,
+  rowsPerPage: 10,
 
   setSelectedTask: task => set({ selectedTask: task }),
+  setCurrentPage: page => set({ currentPage: page }),
+  setRowsPerPage: rows => set({ rowsPerPage: rows, currentPage: 1 }),
 
   fetchTasks: async (userId: string) => {
     if (!userId) return;

@@ -1,4 +1,6 @@
 import { FilterFn } from '@tanstack/react-table';
+import { Table } from '@tanstack/react-table';
+import { Task } from '@/data/types';
 
 // Stats card types
 export interface StatsCardProps {
@@ -16,3 +18,7 @@ export interface User {
 
 // Filter function type
 export type TableFilterFn<T> = FilterFn<T>;
+
+export interface PaginationAreaProps {
+  table: Table<Task>;
+}
