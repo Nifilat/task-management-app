@@ -19,12 +19,12 @@ const ViewColumnsDropDown = ({ table }: { table: Table<Task> }) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button disabled={!tasks} variant={'outline'} className="h-11 px-8 poppins">
+        <Button disabled={!tasks} variant={'outline'} className="h-11 px-8">
           <Settings2 />
           <span>View</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56 poppins">
+      <DropdownMenuContent className="w-56">
         {table
           .getAllColumns()
           .filter(column => column.getCanHide() && columnsToHide.includes(column.id))

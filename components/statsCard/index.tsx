@@ -1,9 +1,12 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { defaultStats } from '@/constants/shared';
+import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 import { StatsCardProps } from '@/types';
+import { Task } from '@/data/types';
+import { ListTodoIcon, CircleCheckIcon, ClockIcon, TriangleAlertIcon } from 'lucide-react';
+import { StatsCardContainerProps } from './types';
 
 function SingleStatsCard({ title, value, icon: Icon }: StatsCardProps) {
   return (
@@ -21,22 +24,73 @@ function SingleStatsCard({ title, value, icon: Icon }: StatsCardProps) {
   );
 }
 
-interface StatsCardContainerProps {
-  stats?: StatsCardProps[];
-  className?: string;
-}
-
 function StatsCard({
-  stats: customStats = defaultStats,
-  className = 'grid grid-cols-3 gap-6 max-sm:grid-cols-1 mt-7 p-6',
+  className = 'grid grid-cols-4 gap-6 max-sm:grid-cols-2 max-xs:grid-cols-1 mt-7 p-6',
 }: StatsCardContainerProps) {
-  if (!customStats?.length) {
-    return null;
-  }
+  const { tasks, loading } = useTasksDataStore();
+
+  // Calculate statistics from actual task data
+  const stats = useMemo((): StatsCardProps[] => {
+    if (!tasks || loading) {
+      return [
+        {
+          title: 'Total Tasks',
+          value: loading ? '--' : 0,
+          icon: ListTodoIcon,
+        },
+        {
+          title: 'Completed Tasks',
+          value: loading ? '--' : 0,
+          icon: CircleCheckIcon,
+        },
+        {
+          title: 'Pending Tasks',
+          value: loading ? '--' : 0,
+          icon: ClockIcon,
+        },
+        {
+          title: 'High Priority Tasks',
+          value: loading ? '--' : 0,
+          icon: TriangleAlertIcon,
+        },
+      ];
+    }
+
+    const totalTasks = tasks.length;
+    const completedTasks = tasks.filter((task: Task) => task.status === 'Done').length;
+    const pendingTasks = tasks.filter(
+      (task: Task) =>
+        task.status === 'Todo' || task.status === 'In Progress' || task.status === 'Backlog'
+    ).length;
+    const highPriorityTasks = tasks.filter((task: Task) => task.priority === 'High').length;
+
+    return [
+      {
+        title: 'Total Tasks',
+        value: totalTasks,
+        icon: ListTodoIcon,
+      },
+      {
+        title: 'Completed Tasks',
+        value: completedTasks,
+        icon: CircleCheckIcon,
+      },
+      {
+        title: 'Pending Tasks',
+        value: pendingTasks,
+        icon: ClockIcon,
+      },
+      {
+        title: 'High Priority Tasks',
+        value: highPriorityTasks,
+        icon: TriangleAlertIcon,
+      },
+    ];
+  }, [tasks, loading]);
 
   return (
     <div className={className}>
-      {customStats.map((stat, index) => (
+      {stats.map((stat, index) => (
         <SingleStatsCard key={`${stat.title}-${index}`} {...stat} />
       ))}
     </div>

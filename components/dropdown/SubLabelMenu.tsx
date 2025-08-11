@@ -24,7 +24,7 @@ export function SubLabelMenu({ value, onValueChange, onClickedLabelItem }: SubLa
         <span>Label</span>
       </DropdownMenuSubTrigger>
       <DropdownMenuPortal>
-        <DropdownMenuSubContent className="poppins">
+        <DropdownMenuSubContent>
           <DropdownMenuRadioGroup value={value} onValueChange={handleValueChange}>
             {labels.map(option => (
               <DropdownMenuRadioItem key={option} value={option}>

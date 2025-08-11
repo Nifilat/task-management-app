@@ -78,7 +78,7 @@ function FilterDropdown<T extends string>({
             </div>
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 poppins w-52" side="bottom" align="center">
+        <PopoverContent className="p-0 w-52" side="bottom" align="center">
           <Command>
             <CommandInput placeholder={placeholder} />
             <CommandList>
