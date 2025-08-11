@@ -1,6 +1,7 @@
 import { Copy, Edit2, Star } from 'lucide-react';
 import { MenuItemType } from './types';
 import { priorities, statuses } from '@/constants/shared';
+import { DropdownItem, Priority, Status } from './types';
 
 export const MENU_ITEMS: MenuItemType[] = [
   {
@@ -24,16 +25,20 @@ export const MENU_ITEMS: MenuItemType[] = [
 ];
 
 // Convert shared constants to dropdown items
-export const PRIORITY_ITEMS = priorities.map(p => ({
-  value: p.value.toLowerCase(),
-  label: p.label,
-  icon: p.icon,
-  count: 0,
-}));
+export const PRIORITY_ITEMS: DropdownItem<Priority>[] = priorities.map(
+  (p): DropdownItem<Priority> => ({
+    value: p.value.toLowerCase(),
+    label: p.label as Priority, // ✅ narrow type
+    icon: p.icon,
+    count: 0,
+  })
+);
 
-export const STATUS_ITEMS = statuses.map(s => ({
-  value: s.value.toLowerCase().replace(' ', '-'),
-  label: s.label,
-  icon: s.icon,
-  count: 0,
-}));
+export const STATUS_ITEMS: DropdownItem<Status>[] = statuses.map(
+  (s): DropdownItem<Status> => ({
+    value: s.value.toLowerCase().replace(' ', '-'),
+    label: s.label as Status, // ✅ narrow type
+    icon: s.icon,
+    count: 0,
+  })
+);

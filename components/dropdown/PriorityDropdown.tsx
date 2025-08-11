@@ -3,23 +3,37 @@
 import { useMemo } from 'react';
 import { useCheckedPrioritiesStore } from '@/hooks/useCheckedPrioritiesStore';
 import { useTasksDataStore } from '@/hooks/useTasksDataStore';
-import { Priority } from './types';
+import { Priority, DropdownItem } from './types';
 import FilterDropdown from './FilterDropdown';
 import { PRIORITY_ITEMS } from './constants';
 
 const PriorityDropdown = () => {
   const { checkedPriorities, setCheckedPriorities } = useCheckedPrioritiesStore();
-
   const { tasks } = useTasksDataStore();
 
-  const priorityItemsWithCounts = useMemo(() => {
-    if (!tasks) return PRIORITY_ITEMS;
+  const priorityItemsWithCounts: DropdownItem<Priority>[] = useMemo(() => {
+    if (!tasks || tasks.length === 0) return PRIORITY_ITEMS;
 
-    return PRIORITY_ITEMS.map(item => ({
-      ...item,
-      count: tasks.filter(task => task.priority === item.label).length,
-    }));
-  }, []);
+    const priorityMap = tasks.reduce(
+      (acc, task) => {
+        const label = task.priority as Priority;
+        if (!acc[label]) {
+          const foundItem = PRIORITY_ITEMS.find(i => i.label === label);
+          acc[label] = {
+            value: foundItem?.value ?? label.toLowerCase(),
+            label,
+            icon: foundItem?.icon ?? (() => null),
+            count: 0,
+          };
+        }
+        acc[label].count++;
+        return acc;
+      },
+      {} as Record<Priority, DropdownItem<Priority>>
+    );
+
+    return Object.values(priorityMap);
+  }, [tasks]);
 
   return (
     <FilterDropdown<Priority>

@@ -1,11 +1,10 @@
 import { LucideIcon } from 'lucide-react';
 
-// Base dropdown item interface
-export interface DropdownItem {
+export interface DropdownItem<T extends string> {
   value: string;
-  label: string;
-  icon: LucideIcon;
-  count?: number;
+  label: T;
+  icon: React.ComponentType<React.SVGProps<SVGSVGElement>>;
+  count: number;
 }
 
 // Task menu types
@@ -23,11 +22,10 @@ export type Priority = 'Low' | 'Medium' | 'High';
 export type Status = 'Backlog' | 'Todo' | 'In Progress' | 'Done' | 'Canceled';
 export type Label = 'Bug' | 'Deployment' | 'Documentation' | 'Feature' | 'Refactoring' | 'Testing';
 
-// Generic filter dropdown props
-export interface FilterDropdownProps<T> {
+export interface FilterDropdownProps<T extends string> {
   title: string;
   placeholder: string;
-  items: DropdownItem[];
+  items: DropdownItem<T>[];
   selectedItems: T[];
   onSelectionChange: (items: T[]) => void;
   maxDisplayBadges?: number;
