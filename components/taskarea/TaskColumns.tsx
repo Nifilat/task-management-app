@@ -94,7 +94,7 @@ const SortableHeader = ({ column, label }: SortableHeaderProps) => {
           <SortingIcon className="h-4 w-4" />
         </div>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="start" side="bottom" className="poppins">
+      <DropdownMenuContent align="start" side="bottom">
         <DropdownMenuItem onClick={() => column.toggleSorting(false)}>
           <ArrowUp className="mr-2 h-4 w-4" />
           Asc

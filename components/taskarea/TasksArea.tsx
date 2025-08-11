@@ -32,7 +32,6 @@ const TasksArea = () => {
   const { setCheckedStatuses, checkedStatuses } = useCheckedStatusesStore();
   const { query } = useQueryStore();
   const { tasks, loading, fetchTasks } = useTasksDataStore();
-  console.log('Tasks from TaskArea', tasks);
   const { user } = useAuth();
 
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

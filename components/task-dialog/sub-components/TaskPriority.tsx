@@ -6,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Task } from '@/data/types';
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { Controller, useFormContext } from 'react-hook-form';
 import { priorities } from '@/constants/shared';
@@ -33,7 +32,7 @@ export default function TaskPriority() {
               <SelectTrigger className="w-full h-11">
                 <SelectValue placeholder="Select a priority..." />
               </SelectTrigger>
-              <SelectContent className="poppins">
+              <SelectContent>
                 <SelectGroup>
                   {priorities.map((priority, index) => (
                     <SelectItem key={index} value={priority.value}>

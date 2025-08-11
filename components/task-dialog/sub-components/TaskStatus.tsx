@@ -6,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Task } from '@/data/types';
 import { Label } from '@radix-ui/react-dropdown-menu';
 import { Controller, useFormContext } from 'react-hook-form';
 import { statuses } from '@/constants/shared';
@@ -33,7 +32,7 @@ export default function TaskStatus() {
               <SelectTrigger className="w-full h-11">
                 <SelectValue placeholder="Select a status..." />
               </SelectTrigger>
-              <SelectContent className="poppins">
+              <SelectContent>
                 <SelectGroup>
                   {statuses.map((status, index) => (
                     <SelectItem key={index} value={status.value}>

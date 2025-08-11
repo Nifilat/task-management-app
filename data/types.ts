@@ -12,9 +12,9 @@ export type Task = {
   priority: Priority;
   status: Status;
   createdAt: Date;
-  userId: string; // Associate task with user
+  userId: string;
 };
 
 export type TaskDocument = Omit<Task, 'createdAt'> & {
-  createdAt: Timestamp; // Firebase Timestamp
+  createdAt: Timestamp;
 };

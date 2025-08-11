@@ -39,7 +39,7 @@ export default function TaskLabel() {
               <SelectTrigger className="w-full h-11">
                 <SelectValue placeholder="Select a Label..." />
               </SelectTrigger>
-              <SelectContent className="poppins">
+              <SelectContent>
                 <SelectGroup>
                   {labelOptions.map((label, index) => (
                     <SelectItem key={index} value={label.value}>

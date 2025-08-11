@@ -3,7 +3,7 @@ import { FilterFn } from '@tanstack/react-table';
 // Stats card types
 export interface StatsCardProps {
   title: string;
-  value: string;
+  value: number | string;
   icon: React.ComponentType;
 }
 
