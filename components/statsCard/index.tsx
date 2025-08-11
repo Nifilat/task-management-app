@@ -14,10 +14,12 @@ function SingleStatsCard({ title, value, icon: Icon }: StatsCardProps) {
       <CardHeader className="p-0 flex items-center justify-between">
         <div className="space-y-1">
           <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-          <CardDescription className="text-2xl font-bold text-foreground sm:text-3xl">{value}</CardDescription>
+          <CardDescription className="text-2xl font-bold text-foreground sm:text-3xl">
+            {value}
+          </CardDescription>
         </div>
         <div className="flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center text-primary bg-primary/25">
-          <Icon  />
+          <Icon />
         </div>
       </CardHeader>
     </Card>

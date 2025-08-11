@@ -164,7 +164,6 @@ export default function Navbar() {
           </SheetContent>
         </Sheet>
 
-        
         <div className="fixed bottom-4 right-4 md:hidden z-50">
           <TaskDialog />
         </div>

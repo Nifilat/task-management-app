@@ -41,27 +41,27 @@ const AuthPage: React.FC = () => {
   });
 
   const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-  const file = event.target.files?.[0];
-  if (file) {
-    if (file.size > MAX_IMAGE_SIZE) {
-      setAuthError('Profile photo must not be more than 1MB.');
-      setSelectedImage(null);
-      setImagePreview('');
-      return;
-    }
+    const file = event.target.files?.[0];
+    if (file) {
+      if (file.size > MAX_IMAGE_SIZE) {
+        setAuthError('Profile photo must not be more than 1MB.');
+        setSelectedImage(null);
+        setImagePreview('');
+        return;
+      }
 
-    setAuthError(''); 
+      setAuthError('');
 
-    setSelectedImage(file);
-    try {
-      const base64 = await fileToBase64(file);
-      setImagePreview(base64);
-    } catch (error) {
-      console.error('Error converting file to base64:', error);
-      setAuthError('Failed to process image. Please try again.');
+      setSelectedImage(file);
+      try {
+        const base64 = await fileToBase64(file);
+        setImagePreview(base64);
+      } catch (error) {
+        console.error('Error converting file to base64:', error);
+        setAuthError('Failed to process image. Please try again.');
+      }
     }
-  }
-};
+  };
 
   const onLogin = async (values: LoginSchema) => {
     setLoading(true);
@@ -86,8 +86,6 @@ const AuthPage: React.FC = () => {
     setAuthError('');
 
     try {
-      
-
       await registerUser(values, selectedImage || undefined);
       await refreshUser();
       console.log('Registration completed successfully');
