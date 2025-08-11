@@ -104,7 +104,7 @@ export default function Navbar() {
           <SheetTrigger asChild>
             <button
               aria-label="Open menu"
-              className="md:hidden p-2 rounded-md hover:bg-gray-200 transition"
+              className="md:hidden p-2 rounded-md hover:bg-accent hover:text-accent-foreground active:bg-muted active:text-muted-foreground transition"
             >
               <MenuIcon className="h-6 w-6" />
             </button>
@@ -164,7 +164,7 @@ export default function Navbar() {
           </SheetContent>
         </Sheet>
 
-        {/* TaskDialog always visible floating on mobile */}
+        
         <div className="fixed bottom-4 right-4 md:hidden z-50">
           <TaskDialog />
         </div>

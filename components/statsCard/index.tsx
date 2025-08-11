@@ -11,13 +11,13 @@ import { StatsCardContainerProps } from './types';
 function SingleStatsCard({ title, value, icon: Icon }: StatsCardProps) {
   return (
     <Card className="p-4 shadow-none hover:shadow-sm transition-shadow">
-      <CardHeader className="p-0 flex flex-row items-center justify-between">
+      <CardHeader className="p-0 flex items-center justify-between">
         <div className="space-y-1">
           <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-          <CardDescription className="text-2xl font-bold text-foreground">{value}</CardDescription>
+          <CardDescription className="text-2xl font-bold text-foreground sm:text-3xl">{value}</CardDescription>
         </div>
-        <div className="flex-shrink-0 size-4 rounded-md flex items-center justify-center text-sm bg-primary/25 font-bold text-primary">
-          <Icon />
+        <div className="flex-shrink-0 w-8 h-8 rounded-md flex items-center justify-center text-primary bg-primary/25">
+          <Icon  />
         </div>
       </CardHeader>
     </Card>
@@ -25,11 +25,10 @@ function SingleStatsCard({ title, value, icon: Icon }: StatsCardProps) {
 }
 
 function StatsCard({
-  className = 'grid grid-cols-4 gap-6 max-sm:grid-cols-2 max-xs:grid-cols-1 mt-7 p-6',
+  className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-7 p-4 sm:p-6',
 }: StatsCardContainerProps) {
   const { tasks, loading } = useTasksDataStore();
 
-  // Calculate statistics from actual task data
   const stats = useMemo((): StatsCardProps[] => {
     if (!tasks || loading) {
       return [
