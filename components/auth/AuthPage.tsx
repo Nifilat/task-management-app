@@ -14,8 +14,11 @@ import {
 import { loginUser, registerUser, fileToBase64 } from '@/utils/auth';
 import { authFormConfigs } from '@/config/formFields';
 import AuthForm from './AuthForm';
+import { useAuth } from '@/hooks/useAuth';
+import { MAX_IMAGE_SIZE } from '@/constants/shared';
 
 const AuthPage: React.FC = () => {
+  const { refreshUser } = useAuth();
   const [authError, setAuthError] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -38,18 +41,27 @@ const AuthPage: React.FC = () => {
   });
 
   const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedImage(file);
-      try {
-        const base64 = await fileToBase64(file);
-        setImagePreview(base64);
-      } catch (error) {
-        console.error('Error converting file to base64:', error);
-        setAuthError('Failed to process image. Please try again.');
-      }
+  const file = event.target.files?.[0];
+  if (file) {
+    if (file.size > MAX_IMAGE_SIZE) {
+      setAuthError('Profile photo must not be more than 1MB.');
+      setSelectedImage(null);
+      setImagePreview('');
+      return;
     }
-  };
+
+    setAuthError(''); 
+
+    setSelectedImage(file);
+    try {
+      const base64 = await fileToBase64(file);
+      setImagePreview(base64);
+    } catch (error) {
+      console.error('Error converting file to base64:', error);
+      setAuthError('Failed to process image. Please try again.');
+    }
+  }
+};
 
   const onLogin = async (values: LoginSchema) => {
     setLoading(true);
@@ -74,14 +86,10 @@ const AuthPage: React.FC = () => {
     setAuthError('');
 
     try {
-      console.log('Starting registration with values:', {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        hasImage: !!selectedImage,
-      });
+      
 
       await registerUser(values, selectedImage || undefined);
+      await refreshUser();
       console.log('Registration completed successfully');
     } catch (error: unknown) {
       console.error('Registration error:', error);

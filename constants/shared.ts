@@ -15,6 +15,8 @@ import {
 import type { Priority, Status, Label } from '@/data/types';
 import type { StatsCardProps } from '@/components/statsCard/types';
 
+export const MAX_IMAGE_SIZE = 1 * 1024 * 1024;
+
 // Priority configuration
 export const priorities = [
   {

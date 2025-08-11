@@ -66,10 +66,43 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return () => unsubscribe();
   }, []);
 
+  const refreshUser = async () => {
+    const firebaseUser = auth.currentUser;
+    if (!firebaseUser) {
+      setUser(null);
+      return;
+    }
+    try {
+      const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
+      const userData = userDoc.exists() ? userDoc.data() : {};
+
+      const firstName = userData.firstName ?? firebaseUser.displayName?.split(' ')[0] ?? '';
+      const lastName =
+        userData.lastName ?? firebaseUser.displayName?.split(' ').slice(1).join(' ') ?? '';
+      const email = firebaseUser.email ?? userData.email ?? '';
+      const profilePhoto =
+        userData.profilePhoto ?? firebaseUser.photoURL ?? getAvatarUrl(firstName, lastName);
+
+      setUser({
+        uid: firebaseUser.uid,
+        firstName,
+        lastName,
+        email,
+        profilePhoto,
+        createdAt: userData.createdAt ?? null,
+        updatedAt: userData.updatedAt ?? null,
+      });
+    } catch (error) {
+      console.error('Error refreshing user:', error);
+      setUser(null);
+    }
+  };
+
   const value: AuthContextType = {
     user,
     loading,
     logout,
+    refreshUser,  
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
