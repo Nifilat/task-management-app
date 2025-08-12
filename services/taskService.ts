@@ -77,7 +77,7 @@ export const taskService = {
       const taskData = {
         ...task,
         taskId,
-        userId: auth.currentUser.uid, // REQUIRED for Firestore rules
+        userId: auth.currentUser.uid,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       };

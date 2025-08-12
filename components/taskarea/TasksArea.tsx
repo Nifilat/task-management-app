@@ -5,10 +5,6 @@ import SearchInput from './SearchInput';
 import { Card, CardHeader, CardFooter, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { X } from 'lucide-react';
-import { useCheckedPrioritiesStore } from '@/hooks/useCheckedPrioritiesStore';
-import { useCheckedStatusesStore } from '@/hooks/useCheckedStatusesStore';
-import { useQueryStore } from '@/hooks/useQueryStore';
-import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 import { useAuth } from '@/hooks/useAuth';
 import PriorityDropdown from '../dropdown/PriorityDropdown';
 import StatusDropdown from '../dropdown/StatusDropdown';
@@ -26,12 +22,23 @@ import {
   getPaginationRowModel,
 } from '@tanstack/react-table';
 import PaginationArea from './pagination/PaginationArea';
+import { useAppDispatch } from '@/hooks/useAppDispatch';
+import { useAppSelector } from '@/hooks/useAppSelector';
+import { fetchTasks, selectTasks, selectTasksLoading } from '@/lib/features/tasks/tasksSlice';
+import {
+  resetPrioritiesAndStatuses,
+  selectCheckedPriorities,
+  selectCheckedStatuses,
+  selectQuery,
+} from '@/lib/features/filters/filtersSlice';
 
 const TasksArea = () => {
-  const { setCheckedPriorities, checkedPriorities } = useCheckedPrioritiesStore();
-  const { setCheckedStatuses, checkedStatuses } = useCheckedStatusesStore();
-  const { query } = useQueryStore();
-  const { tasks, loading, fetchTasks } = useTasksDataStore();
+  const dispatch = useAppDispatch();
+  const tasks = useAppSelector(selectTasks);
+  const loading = useAppSelector(selectTasksLoading);
+  const checkedPriorities = useAppSelector(selectCheckedPriorities);
+  const checkedStatuses = useAppSelector(selectCheckedStatuses);
+  const query = useAppSelector(selectQuery);
   const { user } = useAuth();
 
   const columns = tasksColumns;
@@ -46,9 +53,9 @@ const TasksArea = () => {
   useEffect(() => {
     if (user) {
       console.log('Calling fetchTasks...');
-      fetchTasks(user.uid);
+      dispatch(fetchTasks(user.uid));
     }
-  }, [fetchTasks, user]);
+  }, [dispatch, user]);
 
   const table = useReactTable({
     data: tasks || [],
@@ -87,6 +94,10 @@ const TasksArea = () => {
 
   useEffect(() => {}, [columnFilters, sorting, table, checkedPriorities, checkedStatuses, query]);
 
+  const handleResetFilters = () => {
+    dispatch(resetPrioritiesAndStatuses());
+  };
+
   if (!user) {
     return <TableSkeleton />;
   }
@@ -104,15 +115,7 @@ const TasksArea = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <StatusDropdown />
                 <PriorityDropdown />
-                <Button
-                  onClick={() => {
-                    setCheckedPriorities([]);
-                    setCheckedStatuses([]);
-                  }}
-                  variant={'ghost'}
-                  className="h-8"
-                  size="sm"
-                >
+                <Button onClick={handleResetFilters} variant={'ghost'} className="h-8" size="sm">
                   <span>Reset</span>
                   <X className="ml-1 h-4 w-4" />
                 </Button>
@@ -129,14 +132,7 @@ const TasksArea = () => {
               </div>
               <StatusDropdown />
               <PriorityDropdown />
-              <Button
-                onClick={() => {
-                  setCheckedPriorities([]);
-                  setCheckedStatuses([]);
-                }}
-                variant={'ghost'}
-                className="h-10"
-              >
+              <Button onClick={handleResetFilters} variant={'ghost'} className="h-10">
                 <span>Reset</span>
                 <X className="ml-1 h-4 w-4" />
               </Button>

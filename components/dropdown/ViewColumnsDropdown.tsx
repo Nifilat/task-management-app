@@ -9,10 +9,11 @@ import {
 } from '../ui/dropdown-menu';
 import { Task } from '@/data/types';
 import { Table } from '@tanstack/react-table';
-import { useTasksDataStore } from '@/hooks/useTasksDataStore';
+import { useAppSelector } from '@/hooks/useAppSelector';
+import { selectAllTasks } from '@/lib/features/tasks/tasksSlice';
 
 const ViewColumnsDropDown = ({ table }: { table: Table<Task> }) => {
-  const { tasks } = useTasksDataStore();
+  const tasks = useAppSelector(selectAllTasks);
 
   const columnsToHide = ['priority', 'status', 'createdAt'];
 

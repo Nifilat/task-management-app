@@ -50,7 +50,7 @@ export function TasksTable<TData extends Task, TValue>({
           ) : (
             <TableRow>
               <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results available.
+                No tasks found.
               </TableCell>
             </TableRow>
           )}

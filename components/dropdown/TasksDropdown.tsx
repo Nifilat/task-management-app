@@ -1,21 +1,26 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
+import { LucideEllipsis, Trash } from 'lucide-react';
+import { Button } from '../ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
+} from '../ui/dropdown-menu';
 import { useEffect, useState } from 'react';
-import { LucideEllipsis, Trash } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '@/hooks';
+import { selectSelectedTask, updateTaskAsync } from '@/lib/features/tasks/tasksSlice';
+import type { Label } from '@/data/types';
+import { toast } from 'sonner';
 import { MENU_ITEMS } from './constants';
 import { MenuItem } from './MenuItems';
 import { SubLabelMenu } from './SubLabelMenu';
-import { useTasksDataStore } from '@/hooks/useTasksDataStore';
-import { Label } from '@/data/types';
-import { toast } from 'sonner';
+import { MoreHorizontal } from 'lucide-react';
+import { deleteTask, toggleFavorite, setSelectedTask } from '@/lib/features/tasks/tasksSlice';
+import { useAuth } from '@/hooks/useAuth';
+import type { Task } from '@/data/types';
 
 interface TasksDropdownProps {
   onOpen: () => void;
@@ -24,8 +29,10 @@ interface TasksDropdownProps {
 
 export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
   const [selectedLabel, setSelectedLabel] = useState<Label>('Bug');
-  const { selectedTask, updateTask } = useTasksDataStore();
+  const selectedTask = useAppSelector(selectSelectedTask);
+  const dispatch = useAppDispatch();
   const [menuItemsArray, setMenuItemsArray] = useState(MENU_ITEMS);
+  const { user } = useAuth();
 
   useEffect(() => {
     setMenuItemsArray(prev =>
@@ -62,11 +69,14 @@ export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
       return;
     }
 
-    if (selectedTask) {
+    if (selectedTask && user) {
       try {
-        const result = await updateTask(selectedTask.taskId, {
-          label: newLabel as Label,
-        });
+        const result = await dispatch(
+          updateTaskAsync({
+            taskId: selectedTask.taskId,
+            updates: { label: newLabel as Label, userId: user.uid },
+          })
+        ).unwrap();
 
         toast(
           result.success
@@ -80,34 +90,65 @@ export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
     }
   };
 
+  const handleToggleFavorite = (task: Task) => {
+    if (user) {
+      dispatch(
+        toggleFavorite({ taskId: task.taskId, isFavorite: !task.isFavorite, userId: user.uid })
+      );
+    }
+  };
+
+  const handleDelete = (task: Task) => {
+    if (user) {
+      dispatch(deleteTask({ taskId: task.taskId, userId: user.uid }));
+    }
+    onClose();
+  };
+
+  const handleEdit = (task: Task) => {
+    dispatch(setSelectedTask(task));
+    onClose();
+  };
+
   return (
     <DropdownMenu onOpenChange={(open: boolean) => (open ? onOpen() : onClose())}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost">
-          <LucideEllipsis />
+          {selectedTask ? <LucideEllipsis /> : <MoreHorizontal className="h-4 w-4" />}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56">
-        <DropdownMenuGroup>
-          {menuItemsArray.map(item => (
-            <MenuItem
-              key={item.label}
-              kind={item.kind}
-              Icon={item.icon}
-              label={item.label}
-              shortcut={item.shortcut}
-            />
-          ))}
-        </DropdownMenuGroup>
+        {selectedTask && (
+          <DropdownMenuGroup>
+            {menuItemsArray.map(item => (
+              <MenuItem
+                key={item.label}
+                kind={item.kind}
+                Icon={item.icon}
+                label={item.label}
+                shortcut={item.shortcut}
+                onClick={() => {
+                  if (item.kind === 'edit') {
+                    handleEdit(selectedTask);
+                  } else if (item.kind === 'favorite') {
+                    handleToggleFavorite(selectedTask);
+                  }
+                }}
+              />
+            ))}
+          </DropdownMenuGroup>
+        )}
 
         <DropdownMenuSeparator />
 
         <DropdownMenuGroup>
-          <SubLabelMenu
-            onClickedLabelItem={clickedLabelItem}
-            value={selectedLabel}
-            onValueChange={(value: string) => setSelectedLabel(value as Label)}
-          />
+          {selectedTask && (
+            <SubLabelMenu
+              onClickedLabelItem={clickedLabelItem}
+              value={selectedLabel}
+              onValueChange={(value: string) => setSelectedLabel(value as Label)}
+            />
+          )}
           <DropdownMenuSeparator />
           <MenuItem
             Icon={Trash}
@@ -115,6 +156,7 @@ export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
             label="Delete"
             shortcut="⇧⌘Q"
             className="text-red-500"
+            onClick={() => handleDelete(selectedTask as Task)}
           />
         </DropdownMenuGroup>
       </DropdownMenuContent>

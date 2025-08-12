@@ -20,7 +20,6 @@ export const useSessionTimeout = ({
   const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
 
   const resetTimers = () => {
-    // Clear all existing timers
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     if (warningTimer.current) clearTimeout(warningTimer.current);
     if (countdownTimer.current) clearInterval(countdownTimer.current);

@@ -1,12 +1,13 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/card';
-import { useTasksDataStore } from '@/hooks/useTasksDataStore';
-import { StatsCardProps } from '@/types';
-import { Task } from '@/data/types';
+import { useAppSelector } from '@/hooks/useAppSelector';
+import { selectAllTasks, selectTasksLoading } from '@/lib/features/tasks/tasksSlice';
+import type { StatsCardProps } from '@/types';
+import type { Task } from '@/data/types';
 import { ListTodoIcon, CircleCheckIcon, ClockIcon, TriangleAlertIcon } from 'lucide-react';
-import { StatsCardContainerProps } from './types';
+import type { StatsCardContainerProps } from './types';
 
 function SingleStatsCard({ title, value, icon: Icon }: StatsCardProps) {
   return (
@@ -29,29 +30,31 @@ function SingleStatsCard({ title, value, icon: Icon }: StatsCardProps) {
 function StatsCard({
   className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-7 p-4 sm:p-6',
 }: StatsCardContainerProps) {
-  const { tasks, loading } = useTasksDataStore();
+  // Use RTK selectors instead of Zustand store
+  const tasks = useAppSelector(selectAllTasks);
+  const loading = useAppSelector(selectTasksLoading);
 
   const stats = useMemo((): StatsCardProps[] => {
     if (!tasks || loading) {
       return [
         {
           title: 'Total Tasks',
-          value: loading ? '--' : 0,
+          value: loading ? '--' : '0',
           icon: ListTodoIcon,
         },
         {
           title: 'Completed Tasks',
-          value: loading ? '--' : 0,
+          value: loading ? '--' : '0',
           icon: CircleCheckIcon,
         },
         {
           title: 'Pending Tasks',
-          value: loading ? '--' : 0,
+          value: loading ? '--' : '0',
           icon: ClockIcon,
         },
         {
           title: 'High Priority Tasks',
-          value: loading ? '--' : 0,
+          value: loading ? '--' : '0',
           icon: TriangleAlertIcon,
         },
       ];
@@ -68,22 +71,22 @@ function StatsCard({
     return [
       {
         title: 'Total Tasks',
-        value: totalTasks,
+        value: totalTasks.toString(),
         icon: ListTodoIcon,
       },
       {
         title: 'Completed Tasks',
-        value: completedTasks,
+        value: completedTasks.toString(),
         icon: CircleCheckIcon,
       },
       {
         title: 'Pending Tasks',
-        value: pendingTasks,
+        value: pendingTasks.toString(),
         icon: ClockIcon,
       },
       {
         title: 'High Priority Tasks',
-        value: highPriorityTasks,
+        value: highPriorityTasks.toString(),
         icon: TriangleAlertIcon,
       },
     ];

@@ -1,15 +1,18 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useCheckedPrioritiesStore } from '@/hooks/useCheckedPrioritiesStore';
-import { useTasksDataStore } from '@/hooks/useTasksDataStore';
-import { Priority, DropdownItem } from './types';
+import { useAppDispatch } from '@/hooks/useAppDispatch';
+import { useAppSelector } from '@/hooks/useAppSelector';
+import { selectCheckedPriorities, setCheckedPriorities } from '@/lib/features/filters/filtersSlice';
+import { selectAllTasks } from '@/lib/features/tasks/tasksSlice';
+import type { Priority, DropdownItem } from './types';
 import FilterDropdown from './FilterDropdown';
 import { PRIORITY_ITEMS } from './constants';
 
 const PriorityDropdown = () => {
-  const { checkedPriorities, setCheckedPriorities } = useCheckedPrioritiesStore();
-  const { tasks } = useTasksDataStore();
+  const checkedPriorities = useAppSelector(selectCheckedPriorities);
+  const dispatch = useAppDispatch();
+  const tasks = useAppSelector(selectAllTasks);
 
   const priorityItemsWithCounts: DropdownItem<Priority>[] = useMemo(() => {
     const priorityItemsWithCounts = PRIORITY_ITEMS.map(item => ({
@@ -36,7 +39,7 @@ const PriorityDropdown = () => {
       placeholder="Change priority..."
       items={priorityItemsWithCounts}
       selectedItems={checkedPriorities}
-      onSelectionChange={setCheckedPriorities}
+      onSelectionChange={priorities => dispatch(setCheckedPriorities(priorities))}
     />
   );
 };

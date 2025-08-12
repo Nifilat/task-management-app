@@ -22,9 +22,10 @@ import {
 } from '../ui/dropdown-menu';
 import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
-import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 import { TasksDropdown } from '../dropdown/TasksDropdown';
 import { priorityFilter, statusFilter, titleFilter } from '@/utils/tableFilters';
+import { useAppDispatch } from '@/hooks/useAppDispatch';
+import { setSelectedTask } from '@/lib/features/tasks/tasksSlice';
 
 function renderStatusIcons(status: Status) {
   switch (status) {
@@ -232,9 +233,12 @@ export const tasksColumns: ColumnDef<Task>[] = [
 ];
 
 function ShowTaskDropDown({ task }: { task: Task }) {
-  const { setSelectedTask } = useTasksDataStore();
+  const dispatch = useAppDispatch();
 
   return (
-    <TasksDropdown onOpen={() => setSelectedTask(task)} onClose={() => setSelectedTask(null)} />
+    <TasksDropdown
+      onOpen={() => dispatch(setSelectedTask(task))}
+      onClose={() => dispatch(setSelectedTask(null))}
+    />
   );
 }

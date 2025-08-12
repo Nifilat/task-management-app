@@ -1,15 +1,18 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useCheckedStatusesStore } from '@/hooks/useCheckedStatusesStore';
-import { Status, DropdownItem } from './types';
+import { useAppDispatch } from '@/hooks/useAppDispatch';
+import { useAppSelector } from '@/hooks/useAppSelector';
+import { selectCheckedStatuses, setCheckedStatuses } from '@/lib/features/filters/filtersSlice';
+import { selectAllTasks } from '@/lib/features/tasks/tasksSlice';
+import type { Status, DropdownItem } from './types';
 import FilterDropdown from './FilterDropdown';
 import { STATUS_ITEMS } from './constants';
-import { useTasksDataStore } from '@/hooks/useTasksDataStore';
 
 const StatusDropdown = () => {
-  const { checkedStatuses, setCheckedStatuses } = useCheckedStatusesStore();
-  const { tasks } = useTasksDataStore();
+  const checkedStatuses = useAppSelector(selectCheckedStatuses);
+  const dispatch = useAppDispatch();
+  const tasks = useAppSelector(selectAllTasks);
 
   const statusItemsWithCounts: DropdownItem<Status>[] = useMemo(() => {
     const statusItemsWithCounts = STATUS_ITEMS.map(item => ({
@@ -36,7 +39,7 @@ const StatusDropdown = () => {
       placeholder="Change status..."
       items={statusItemsWithCounts}
       selectedItems={checkedStatuses}
-      onSelectionChange={setCheckedStatuses}
+      onSelectionChange={statuses => dispatch(setCheckedStatuses(statuses))}
       maxDisplayBadges={2}
     />
   );

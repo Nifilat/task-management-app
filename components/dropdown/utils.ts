@@ -1,72 +1,95 @@
-import { Task } from '@/data/types';
-import { Kind } from './types';
-import { taskService } from '@/services/taskService';
+import type { Task } from '@/data/types';
+import type { Kind } from './types';
 import { toast } from 'sonner';
-import useTasksDataStore from '@/hooks/useTasksDataStore';
+import { AppDispatch } from '@/store/store';
+import {
+  toggleFavoriteAsync,
+  deleteTaskAsync,
+  addTaskAsync,
+} from '@/lib/features/tasks/tasksSlice';
 
-export async function handleMenuItemClick(
+export const handleMenuItemClick = async (
   kind: Kind,
   selectedTask: Task | null,
-  refreshTasks: () => Promise<void>,
-  onEdit?: () => void // ← Add edit callback
-) {
+  fetchTasks: () => Promise<void>,
+  handleEdit: () => void,
+  dispatch: AppDispatch,
+  userId?: string
+) => {
   if (!selectedTask) return;
 
   switch (kind) {
     case 'edit':
-      onEdit?.();
+      handleEdit();
       break;
-
     case 'favorite':
-      try {
-        const { success, message } = await useTasksDataStore
-          .getState()
-          .toggleFavorite(selectedTask.taskId, !selectedTask.isFavorite);
-        if (!success) throw new Error(message);
+      if (userId) {
+        try {
+          const result = await dispatch(
+            toggleFavoriteAsync({
+              taskId: selectedTask.taskId,
+              isFavorite: !selectedTask.isFavorite,
+              userId,
+            })
+          ).unwrap();
 
-        await refreshTasks();
-        toast('Task updated!', { description: message });
-      } catch {
-        toast('Operation failed', {
-          description: 'Failed to update favorite status',
-        });
+          if (result.success) {
+            await fetchTasks();
+            toast('Task updated!', { description: result.message });
+          }
+        } catch {
+          toast('Operation failed', {
+            description: 'Failed to update favorite status',
+          });
+        }
+      }
+      break;
+    case 'delete':
+      if (userId) {
+        try {
+          const result = await dispatch(
+            deleteTaskAsync({
+              taskId: selectedTask.taskId,
+              userId,
+            })
+          ).unwrap();
+
+          if (result.success) {
+            await fetchTasks();
+            toast('Deleted successfully!', { description: result.message });
+          }
+        } catch {
+          toast('Deletion failed', { description: 'Failed to delete task' });
+        }
       }
       break;
 
     case 'copy':
-      try {
-        const copiedTask = {
-          ...selectedTask,
-          taskId: `${selectedTask.taskId}-copy-${Date.now()}`,
-          title: `${selectedTask.title} - copy`,
-        };
-        await taskService.addTask(copiedTask);
-        await refreshTasks();
-        toast('Copied successfully!', {
-          description: 'Task has been duplicated',
-        });
-      } catch {
-        toast('Copy failed', {
-          description: 'Failed to copy task',
-        });
+      if (userId) {
+        try {
+          const copiedTask = {
+            ...selectedTask,
+            taskId: `${selectedTask.taskId}-copy-${Date.now()}`,
+            title: `${selectedTask.title} - copy`,
+            userId,
+          };
+
+          const result = await dispatch(addTaskAsync(copiedTask)).unwrap();
+
+          if (result.success) {
+            await fetchTasks();
+            toast('Copied successfully!', {
+              description: 'Task has been duplicated',
+            });
+          }
+        } catch {
+          toast('Copy failed', {
+            description: 'Failed to copy task',
+          });
+        }
       }
       break;
-
-    case 'delete':
-      try {
-        const { success, message } = await useTasksDataStore
-          .getState()
-          .deleteTask(selectedTask.taskId);
-        if (!success) throw new Error(message);
-
-        await refreshTasks();
-        toast('Deleted successfully!', { description: message });
-      } catch {
-        toast('Deletion failed', { description: 'Failed to delete task' });
-      }
-      break;
-
     default:
       break;
   }
-}
+};

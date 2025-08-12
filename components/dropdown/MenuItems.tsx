@@ -1,10 +1,13 @@
+'use client';
+
 import { DropdownMenuItem, DropdownMenuShortcut } from '@/components/ui/dropdown-menu';
-import { useTasksDataStore } from '@/hooks/useTasksDataStore';
+import { useAppSelector, useAppDispatch } from '@/hooks';
+import { selectSelectedTask, fetchTasksAsync } from '@/lib/features/tasks/tasksSlice';
 import { useOpenDialogStore } from '@/hooks/useOpenDialogStore';
-import { type LucideIcon } from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { handleMenuItemClick } from './utils';
-import { Kind } from './types';
+import type { Kind } from './types';
 
 export function MenuItem({
   Icon,
@@ -18,8 +21,10 @@ export function MenuItem({
   label: string;
   shortcut: string;
   className?: string;
+  onClick?: () => void;
 }) {
-  const { selectedTask, fetchTasks } = useTasksDataStore();
+  const selectedTask = useAppSelector(selectSelectedTask);
+  const dispatch = useAppDispatch();
   const { setIsOpen } = useOpenDialogStore();
 
   const { user } = useAuth();
@@ -30,8 +35,14 @@ export function MenuItem({
     }
   };
 
-  const handleClick = () => {
-    handleMenuItemClick(kind, selectedTask, () => fetchTasks(user?.uid ?? ''), handleEdit);
+  const fetchTasks = async () => {
+    if (user?.uid) {
+      await dispatch(fetchTasksAsync(user.uid));
+    }
+  };
+
+  const handleClick = async () => {
+    await handleMenuItemClick(kind, selectedTask, fetchTasks, handleEdit, dispatch, user?.uid);
   };
 
   return (

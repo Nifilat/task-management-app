@@ -22,7 +22,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { FormProvider, useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { type TaskFormData, taskFormSchema } from './TaskDialogSchema';
-import { useTasksDataStore } from '@/hooks/useTasksDataStore';
+import { useAppDispatch } from '@/hooks';
+import {
+  addTaskAsync,
+  updateTaskAsync,
+  setSelectedTask,
+  fetchTasksAsync,
+} from '@/lib/features/tasks/tasksSlice';
 import { useOpenDialogStore } from '@/hooks/useOpenDialogStore';
 import { useEffect, useState } from 'react';
 import type { Task } from '@/data/types';
@@ -39,7 +45,7 @@ export default function TaskDialog() {
     },
   });
 
-  const { addTask, updateTask, setSelectedTask, fetchTasks } = useTasksDataStore();
+  const dispatch = useAppDispatch();
   const { user } = useAuth();
   const { handleSubmit, reset } = methods;
   const { taskToEdit, mode, isOpen, setIsOpen } = useOpenDialogStore();
@@ -68,7 +74,16 @@ export default function TaskDialog() {
     setIsLoading(true);
     try {
       if (isEditing && taskToEdit && user?.uid) {
-        const result = await updateTask(taskToEdit.taskId, data);
+        const result = await dispatch(
+          updateTaskAsync({
+            taskId: taskToEdit.taskId,
+            updates: {
+              ...data,
+              userId: user.uid, // Include userId for authentication
+            },
+          })
+        ).unwrap();
+
         toast(
           result.success
             ? `Task ${taskToEdit.taskId} updated successfully!`
@@ -83,11 +98,11 @@ export default function TaskDialog() {
           userId: user?.uid ?? '',
           createdAt: new Date(),
         };
-        const result = await addTask(newTask);
+        const result = await dispatch(addTaskAsync(newTask)).unwrap();
         toast(result.message);
       }
 
-      if (user?.uid) await fetchTasks(user.uid);
+      if (user?.uid) await dispatch(fetchTasksAsync(user.uid));
 
       reset();
       setIsOpen(false);
@@ -111,7 +126,7 @@ export default function TaskDialog() {
         <Button
           className="hidden md:inline-flex"
           onClick={() => {
-            setSelectedTask(null);
+            dispatch(setSelectedTask(null));
             setIsOpen(true);
           }}
         >
@@ -125,7 +140,7 @@ export default function TaskDialog() {
           aria-label="Add task"
           className="inline-flex md:hidden fixed bottom-4 right-4 z-50 p-3 rounded-full bg-primary text-white shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
           onClick={() => {
-            setSelectedTask(null);
+            dispatch(setSelectedTask(null));
             setIsOpen(true);
           }}
         >
