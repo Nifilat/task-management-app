@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,11 +19,18 @@ import { useAuth } from '@/hooks/useAuth';
 import { MAX_IMAGE_SIZE } from '@/constants/shared';
 
 const AuthPage: React.FC = () => {
-  const { refreshUser } = useAuth();
+  const { user, refreshUser } = useAuth();
+  const router = useRouter();
   const [authError, setAuthError] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+
+  useEffect(() => {
+    if (user) {
+      router.replace('/tasks');
+    }
+  }, [user, router]);
 
   const loginForm = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -69,6 +77,8 @@ const AuthPage: React.FC = () => {
 
     try {
       await loginUser(values);
+
+      await refreshUser();
     } catch (error: unknown) {
       console.error('Login error:', error);
       if (error instanceof Error) {
@@ -88,7 +98,6 @@ const AuthPage: React.FC = () => {
     try {
       await registerUser(values, selectedImage || undefined);
       await refreshUser();
-      console.log('Registration completed successfully');
     } catch (error: unknown) {
       console.error('Registration error:', error);
       if (error instanceof Error) {
@@ -100,6 +109,14 @@ const AuthPage: React.FC = () => {
       setLoading(false);
     }
   };
+
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
