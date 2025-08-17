@@ -26,6 +26,7 @@ import { TasksDropdown } from '../dropdown/TasksDropdown';
 import { priorityFilter, statusFilter, titleFilter } from '@/utils/tableFilters';
 import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { setSelectedTask } from '@/lib/features/tasks/tasksSlice';
+import { formatDateString } from '@/utils/date';
 
 function renderStatusIcons(status: Status) {
   switch (status) {
@@ -55,22 +56,6 @@ function renderPriorityIcons(priority: Priority) {
     default:
       break;
   }
-}
-
-function formatDate(date: Date): string {
-  const day = date.getDate();
-  const month = date.toLocaleString('default', { month: 'long' });
-  const year = date.getFullYear();
-
-  const suffix =
-    day % 10 === 1 && day !== 11
-      ? 'st'
-      : day % 10 === 2 && day !== 12
-        ? 'nd'
-        : day % 10 === 3 && day !== 13
-          ? 'rd'
-          : 'th';
-  return `${day}${suffix} ${month}, ${year}`;
 }
 
 type SortableHeaderProps = {
@@ -216,8 +201,8 @@ export const tasksColumns: ColumnDef<Task>[] = [
     accessorKey: 'createdAt',
     header: ({ column }) => <SortableHeader column={column} label="Created At" />,
     cell: ({ row }) => {
-      const date = row.original.createdAt;
-      const formattedDate = formatDate(date);
+      const dateString = row.original.createdAt;
+      const formattedDate = formatDateString(dateString);
       return formattedDate;
     },
     enableSorting: true,
