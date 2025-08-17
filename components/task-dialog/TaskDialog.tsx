@@ -31,7 +31,7 @@ import {
 } from '@/lib/features/tasks/tasksSlice';
 import { useOpenDialogStore } from '@/hooks/useOpenDialogStore';
 import { useEffect, useState } from 'react';
-import type { Task } from '@/data/types';
+import type { TaskInput } from '@/data/types';
 import { toast } from 'sonner';
 
 export default function TaskDialog() {
@@ -91,12 +91,11 @@ export default function TaskDialog() {
           { description: result.message }
         );
       } else {
-        const newTask: Task = {
-          taskId: '',
+        // Use TaskInput type which excludes taskId, createdAt, and updatedAt
+        const newTask: TaskInput = {
           ...data,
           isFavorite: false,
           userId: user?.uid ?? '',
-          createdAt: new Date(),
         };
         const result = await dispatch(addTaskAsync(newTask)).unwrap();
         toast(result.message);
