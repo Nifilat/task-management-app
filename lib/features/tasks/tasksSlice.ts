@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, type PayloadAction } from '@reduxjs/toolkit';
-import type { Task } from '@/data/types';
+import type { Task, TaskService, TaskInput } from '@/data/types';
 import { taskService } from '@/services/taskService';
 
 interface TasksState {
@@ -16,6 +16,22 @@ const initialState: TasksState = {
   error: null,
 };
 
+const convertTaskServiceToTask = (task: TaskService): Task => ({
+  ...task,
+  createdAt: task.createdAt.toISOString(),
+  updatedAt: task.updatedAt ? task.updatedAt.toISOString() : undefined,
+});
+
+const serializeTaskForRedux = (task: Task | TaskService): Task => {
+  if ('createdAt' in task && task.createdAt instanceof Date) {
+    return convertTaskServiceToTask(task as TaskService);
+  }
+  return task as Task;
+};
+
+const serializeTasksForRedux = (tasks: TaskService[]): Task[] =>
+  tasks.map(convertTaskServiceToTask);
+
 // Async thunks
 export const fetchTasks = createAsyncThunk(
   'tasks/fetchTasks',
@@ -23,7 +39,8 @@ export const fetchTasks = createAsyncThunk(
     try {
       if (!userId) throw new Error('User ID is required');
       const userTasks = await taskService.getUserTasks(userId);
-      return userTasks;
+
+      return serializeTasksForRedux(userTasks);
     } catch (error) {
       console.error('Failed to fetch tasks:', error);
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to fetch tasks');
@@ -33,13 +50,14 @@ export const fetchTasks = createAsyncThunk(
 
 export const addTask = createAsyncThunk(
   'tasks/addTask',
-  async (task: Omit<Task, 'taskId' | 'createdAt'>, { rejectWithValue }) => {
+  async (task: TaskInput, { rejectWithValue }) => {
     try {
       const taskId = await taskService.addTask(task);
+
       const newTask: Task = {
         ...task,
         taskId,
-        createdAt: new Date(),
+        createdAt: new Date().toISOString(),
       };
       return { task: newTask, message: 'Task added successfully!', success: true };
     } catch (error) {
@@ -57,7 +75,25 @@ export const updateTask = createAsyncThunk(
       if (!userId) throw new Error('User not authenticated!');
 
       await taskService.updateTask(taskId, updates, userId);
-      return { taskId, updates, message: 'Task updated successfully!', success: true };
+
+      const serializedUpdates = {
+        ...updates,
+
+        ...(updates.createdAt && {
+          createdAt: typeof updates.createdAt === 'string' ? updates.createdAt : updates.createdAt,
+        }),
+
+        ...(updates.updatedAt && {
+          updatedAt: typeof updates.updatedAt === 'string' ? updates.updatedAt : updates.updatedAt,
+        }),
+      };
+
+      return {
+        taskId,
+        updates: serializedUpdates,
+        message: 'Task updated successfully!',
+        success: true,
+      };
     } catch (error) {
       console.error('Error updating task:', error);
       return rejectWithValue(error instanceof Error ? error.message : 'Failed to update task');
@@ -110,7 +146,7 @@ const tasksSlice = createSlice({
   initialState,
   reducers: {
     setSelectedTask: (state, action: PayloadAction<Task | null>) => {
-      state.selectedTask = action.payload;
+      state.selectedTask = action.payload ? serializeTaskForRedux(action.payload) : null;
     },
     clearError: state => {
       state.error = null;
