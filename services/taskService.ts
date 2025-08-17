@@ -13,7 +13,7 @@ import {
   runTransaction,
 } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
-import type { Task } from '@/data/types';
+import type { TaskService, TaskInput, TaskUpdate } from '@/data/types';
 
 const TASKS_COLLECTION = 'tasks';
 const COUNTERS_COLLECTION = 'counters';
@@ -24,10 +24,11 @@ const convertTimestamp = (timestamp: any): Date => {
   return new Date(timestamp);
 };
 
-const firestoreToTask = (docSnap: any): Task => ({
+const firestoreToTask = (docSnap: any): TaskService => ({
   ...docSnap.data(),
   id: docSnap.id,
   createdAt: convertTimestamp(docSnap.data().createdAt),
+  updatedAt: docSnap.data().updatedAt ? convertTimestamp(docSnap.data().updatedAt) : undefined,
 });
 
 const generateTaskId = async (): Promise<string> => {
@@ -57,7 +58,7 @@ const generateTaskId = async (): Promise<string> => {
 };
 
 export const taskService = {
-  async getUserTasks(userId: string): Promise<Task[]> {
+  async getUserTasks(userId: string): Promise<TaskService[]> {
     try {
       const tasksRef = collection(db, TASKS_COLLECTION);
       const q = query(tasksRef, where('userId', '==', userId), orderBy('createdAt', 'desc'));
@@ -69,7 +70,7 @@ export const taskService = {
     }
   },
 
-  async addTask(task: Omit<Task, 'id' | 'taskId' | 'createdAt'>): Promise<string> {
+  async addTask(task: TaskInput): Promise<string> {
     if (!auth.currentUser) throw new Error('Not authenticated');
 
     try {
@@ -90,7 +91,7 @@ export const taskService = {
     }
   },
 
-  async updateTask(taskId: string, updates: Partial<Task>, userId: string): Promise<void> {
+  async updateTask(taskId: string, updates: TaskUpdate, userId: string): Promise<void> {
     try {
       const q = query(
         collection(db, TASKS_COLLECTION),
@@ -101,7 +102,22 @@ export const taskService = {
 
       if (snapshot.empty) throw new Error(`Task with taskId ${taskId} not found`);
 
-      await updateDoc(snapshot.docs[0].ref, { ...updates, updatedAt: serverTimestamp() });
+      const firestoreUpdates = {
+        ...updates,
+        updatedAt: serverTimestamp(),
+
+        ...(updates.createdAt &&
+          typeof updates.createdAt === 'string' && {
+            createdAt: new Date(updates.createdAt),
+          }),
+
+        ...(updates.updatedAt &&
+          typeof updates.updatedAt === 'string' && {
+            updatedAt: new Date(updates.updatedAt),
+          }),
+      };
+
+      await updateDoc(snapshot.docs[0].ref, firestoreUpdates);
     } catch (error) {
       console.error('Error updating task:', error);
       throw new Error('Failed to update task');
