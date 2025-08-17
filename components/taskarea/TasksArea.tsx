@@ -52,7 +52,6 @@ const TasksArea = () => {
 
   useEffect(() => {
     if (user) {
-      console.log('Calling fetchTasks...');
       dispatch(fetchTasks(user.uid));
     }
   }, [dispatch, user]);
