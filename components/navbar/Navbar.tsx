@@ -164,11 +164,13 @@ export default function Navbar() {
           </SheetContent>
         </Sheet>
 
+        {/* Mobile TaskDialog - Fixed position */}
         <div className="fixed bottom-4 right-4 md:hidden z-50">
           <TaskDialog />
         </div>
       </div>
 
+      {/* Session Warning Modal */}
       <SessionWarningModal
         isOpen={showWarning}
         timeRemaining={timeRemaining}
