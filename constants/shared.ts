@@ -98,3 +98,5 @@ export const defaultStats: StatsCardProps[] = [
     icon: TriangleAlertIcon,
   },
 ];
+
+export const TABLE_HEADERS = ['Task', 'Title', 'Status', 'Priority', 'Created At'];

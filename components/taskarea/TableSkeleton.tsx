@@ -1,4 +1,5 @@
 import { Skeleton } from '../ui/skeleton';
+import { TABLE_HEADERS } from '@/constants/shared';
 
 export default function TableSkeleton() {
   return (
@@ -7,7 +8,7 @@ export default function TableSkeleton() {
         <table className="w-full border-collapse">
           <thead>
             <tr>
-              {['Task', 'Title', 'Status', 'Priority', 'Created At'].map((header, idx) => (
+              {TABLE_HEADERS.map((header, idx) => (
                 <th key={idx} className="p-3 text-left">
                   <Skeleton className="h-7 w-3/4" />
                 </th>
