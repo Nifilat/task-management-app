@@ -12,6 +12,7 @@ export interface AuthContextType {
   user: AuthUser | null;
   loading: boolean;
   logout: () => Promise<void>;
+  refreshUser: () => Promise<void>;
 }
 
 export interface AuthProviderProps {

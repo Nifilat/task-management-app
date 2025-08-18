@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from './useAuth';
 import type { UseSessionTimeoutProps } from '@/types/session';
 
 export const useSessionTimeout = ({
@@ -20,7 +20,6 @@ export const useSessionTimeout = ({
   const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart', 'click'];
 
   const resetTimers = () => {
-    // Clear all existing timers
     if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
     if (warningTimer.current) clearTimeout(warningTimer.current);
     if (countdownTimer.current) clearInterval(countdownTimer.current);

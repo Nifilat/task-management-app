@@ -1,12 +1,30 @@
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import Navbar from '@/components/layout/Navbar';
+'use client';
+
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 export default function Home() {
-  return (
-    <ProtectedRoute>
-      <div className="font-sans">
-        <Navbar />
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!loading) {
+      if (user) {
+        router.replace('/tasks');
+      } else {
+        router.replace('/login');
+      }
+    }
+  }, [user, loading, router]);
+
+  if (loading) {
+    return (
+      <div className="font-sans min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
       </div>
-    </ProtectedRoute>
-  );
+    );
+  }
+
+  return null;
 }

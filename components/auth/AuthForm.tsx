@@ -112,7 +112,7 @@ const AuthForm: React.FC<AuthFormProps> = ({
                 </label>
               </div>
               <p className="text-xs text-muted-foreground">
-                Click to upload profile photo (optional)
+                Click to upload profile photo (optional). Not more than 1MB.
               </p>
             </div>
           )}

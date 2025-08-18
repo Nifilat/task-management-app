@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,12 +15,31 @@ import {
 import { loginUser, registerUser, fileToBase64 } from '@/utils/auth';
 import { authFormConfigs } from '@/config/formFields';
 import AuthForm from './AuthForm';
+import { useAuth } from '@/hooks/useAuth';
+import { MAX_IMAGE_SIZE } from '@/constants/shared';
 
 const AuthPage: React.FC = () => {
-  const [authError, setAuthError] = useState('');
+  const { user, refreshUser, error: authError, clearAuthError } = useAuth();
+  const router = useRouter();
+  const [localError, setLocalError] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
+
+  const displayError = authError || localError;
+
+  useEffect(() => {
+    if (user) {
+      router.replace('/tasks');
+    }
+  }, [user, router]);
+
+  useEffect(() => {
+    return () => {
+      clearAuthError();
+      setLocalError('');
+    };
+  }, [clearAuthError]);
 
   const loginForm = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
@@ -40,29 +60,41 @@ const AuthPage: React.FC = () => {
   const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      if (file.size > MAX_IMAGE_SIZE) {
+        setLocalError('Profile photo must not be more than 1MB.');
+        setSelectedImage(null);
+        setImagePreview('');
+        return;
+      }
+
+      setLocalError('');
+      clearAuthError();
+
       setSelectedImage(file);
       try {
         const base64 = await fileToBase64(file);
         setImagePreview(base64);
       } catch (error) {
         console.error('Error converting file to base64:', error);
-        setAuthError('Failed to process image. Please try again.');
+        setLocalError('Failed to process image. Please try again.');
       }
     }
   };
 
   const onLogin = async (values: LoginSchema) => {
     setLoading(true);
-    setAuthError('');
+    setLocalError('');
+    clearAuthError();
 
     try {
       await loginUser(values);
+      await refreshUser();
     } catch (error: unknown) {
       console.error('Login error:', error);
       if (error instanceof Error) {
-        setAuthError(error.message || 'Login failed. Please check your credentials.');
+        setLocalError(error.message || 'Login failed. Please check your credentials.');
       } else {
-        setAuthError('Login failed. Please check your credentials.');
+        setLocalError('Login failed. Please check your credentials.');
       }
     } finally {
       setLoading(false);
@@ -71,29 +103,36 @@ const AuthPage: React.FC = () => {
 
   const onRegister = async (values: RegisterSchema) => {
     setLoading(true);
-    setAuthError('');
+    setLocalError('');
+    clearAuthError();
 
     try {
-      console.log('Starting registration with values:', {
-        firstName: values.firstName,
-        lastName: values.lastName,
-        email: values.email,
-        hasImage: !!selectedImage,
-      });
-
       await registerUser(values, selectedImage || undefined);
-      console.log('Registration completed successfully');
+      await refreshUser();
     } catch (error: unknown) {
       console.error('Registration error:', error);
       if (error instanceof Error) {
-        setAuthError(error.message || 'Registration failed. Please try again.');
+        setLocalError(error.message || 'Registration failed. Please try again.');
       } else {
-        setAuthError('Registration failed. Please try again.');
+        setLocalError('Registration failed. Please try again.');
       }
     } finally {
       setLoading(false);
     }
   };
+
+  const handleTabChange = () => {
+    setLocalError('');
+    clearAuthError();
+  };
+
+  if (user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
@@ -102,7 +141,7 @@ const AuthPage: React.FC = () => {
           <CardTitle className="text-2xl font-bold text-center">Task Manager</CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="login" className="w-full">
+          <Tabs defaultValue="login" className="w-full" onValueChange={handleTabChange}>
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="register">Register</TabsTrigger>
@@ -115,7 +154,7 @@ const AuthPage: React.FC = () => {
                 form={loginForm}
                 onSubmit={onLogin}
                 loading={loading}
-                error={authError}
+                error={displayError}
               />
             </TabsContent>
 
@@ -126,7 +165,7 @@ const AuthPage: React.FC = () => {
                 form={registerForm}
                 onSubmit={onRegister}
                 loading={loading}
-                error={authError}
+                error={displayError}
                 selectedImage={selectedImage}
                 imagePreview={imagePreview}
                 onImageSelect={handleImageSelect}
