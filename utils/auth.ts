@@ -6,7 +6,6 @@ import {
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { auth, db } from '@/config/firebase';
 import type { LoginSchema, RegisterSchema } from './validation/authSchema';
-import { testFirestoreConnection, checkFirestoreRules } from './firestore-debug';
 
 // Utility: Convert image file to base64
 export const fileToBase64 = (file: File): Promise<string> => {
@@ -49,10 +48,6 @@ export const loginUser = async (values: LoginSchema) => {
 // Auth: Register
 export const registerUser = async (values: RegisterSchema, profileImageFile?: File) => {
   try {
-    console.log('Starting user registration...', { email: values.email });
-
-    checkFirestoreRules();
-
     const userCredential = await createUserWithEmailAndPassword(
       auth,
       values.email,
@@ -60,26 +55,13 @@ export const registerUser = async (values: RegisterSchema, profileImageFile?: Fi
     );
     const user = userCredential.user;
 
-    console.log('User created in Firebase Auth:', user.uid);
-
-    console.log('Testing Firestore connection...');
-    const firestoreTest = await testFirestoreConnection(user.uid);
-
-    if (!firestoreTest) {
-      throw new Error('Firestore connection test failed. Please check your security rules.');
-    }
-
     let profilePhotoURL = '';
 
     try {
       if (profileImageFile) {
-        console.log('Converting profile image to base64...');
-
         profilePhotoURL = await fileToBase64(profileImageFile);
-        console.log('Profile image converted to base64');
       } else {
         profilePhotoURL = getAvatarUrl(values.firstName, values.lastName);
-        console.log('Using fallback avatar:', profilePhotoURL);
       }
     } catch (imageError) {
       console.error('Profile photo processing failed, using fallback avatar:', imageError);
@@ -96,11 +78,8 @@ export const registerUser = async (values: RegisterSchema, profileImageFile?: Fi
       updatedAt: serverTimestamp(),
     };
 
-    console.log('Saving user data to Firestore:', userData);
-
     try {
       await setDoc(doc(db, 'users', user.uid), userData);
-      console.log('User data saved to Firestore successfully');
     } catch (firestoreError: unknown) {
       console.error('Firestore save error:', firestoreError);
 
@@ -124,7 +103,6 @@ export const registerUser = async (values: RegisterSchema, profileImageFile?: Fi
         displayName: `${values.firstName} ${values.lastName}`,
         photoURL: authPhotoURL,
       });
-      console.log('Firebase Auth profile updated');
     } catch (profileError) {
       console.error('Failed to update Firebase Auth profile:', profileError);
     }

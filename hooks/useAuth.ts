@@ -19,7 +19,6 @@ export const useAuth = (): UseAuthReturn => {
 
   useEffect(() => {
     if (!initialized) {
-      console.log('Initializing auth...');
       dispatch(initializeAuth());
     }
   }, [dispatch, initialized]);

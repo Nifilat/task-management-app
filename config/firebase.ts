@@ -35,7 +35,6 @@ const app = initializeApp(firebaseConfig);
 
 // Enable Firestore logging in development
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  console.log('Firestore initialized in development mode');
 }
 
 export const auth = getAuth(app);

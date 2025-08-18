@@ -45,8 +45,6 @@ export const initializeAuth = createAsyncThunk('auth/initialize', async (_, { di
 
       if (firebaseUser) {
         try {
-          console.log('Auth state changed - user found:', firebaseUser.uid);
-
           const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
           const userData = userDoc.exists() ? userDoc.data() : {};
 
@@ -66,16 +64,12 @@ export const initializeAuth = createAsyncThunk('auth/initialize', async (_, { di
             createdAt: deserializeTimestamp(serializeTimestamp(userData.createdAt)),
             updatedAt: deserializeTimestamp(serializeTimestamp(userData.updatedAt)),
           };
-
-          console.log('Loaded user data:', finalUser);
-          resolve(finalUser);
         } catch (error: any) {
           console.error('Error fetching user data:', error.message);
           dispatch(setError(error.message));
           resolve(null);
         }
       } else {
-        console.log('No user found on auth state change');
         resolve(null);
       }
 
