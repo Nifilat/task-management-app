@@ -3,7 +3,6 @@ import { getAuth } from 'firebase/auth';
 import { getFirestore, collection } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
-
 const requiredEnvVars = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -12,7 +11,6 @@ const requiredEnvVars = {
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
-
 
 const missingVars = Object.entries(requiredEnvVars)
   .filter(([key, value]) => !value)
@@ -30,9 +28,7 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-
 const app = initializeApp(firebaseConfig);
-
 
 if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
 }

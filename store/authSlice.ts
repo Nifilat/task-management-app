@@ -19,7 +19,6 @@ const initialState: AuthState = {
   initialized: false,
 };
 
-
 const serializeTimestamp = (timestamp: any): string | null => {
   if (!timestamp) return null;
   if (timestamp?.toDate) return timestamp.toDate().toISOString();
@@ -27,19 +26,17 @@ const serializeTimestamp = (timestamp: any): string | null => {
   return null;
 };
 
-
 const deserializeTimestamp = (timestamp: string | null): Date | null => {
   if (!timestamp) return null;
   return new Date(timestamp);
 };
-
 
 export const initializeAuth = createAsyncThunk('auth/initialize', async (_, { dispatch }) => {
   return new Promise<AuthUser | null>(resolve => {
     let hasResolved = false;
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      if (hasResolved) return; 
+      if (hasResolved) return;
       hasResolved = true;
 
       if (firebaseUser) {
@@ -63,6 +60,7 @@ export const initializeAuth = createAsyncThunk('auth/initialize', async (_, { di
             createdAt: deserializeTimestamp(serializeTimestamp(userData.createdAt)),
             updatedAt: deserializeTimestamp(serializeTimestamp(userData.updatedAt)),
           };
+          resolve(finalUser);
         } catch (error: any) {
           console.error('Error fetching user data:', error.message);
           dispatch(setError(error.message));
@@ -72,12 +70,10 @@ export const initializeAuth = createAsyncThunk('auth/initialize', async (_, { di
         resolve(null);
       }
 
-      
       unsubscribe();
     });
   });
 });
-
 
 export const refreshUserData = createAsyncThunk(
   'auth/refreshUser',
@@ -116,7 +112,6 @@ export const refreshUserData = createAsyncThunk(
   }
 );
 
-
 export const logoutUser = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
   try {
     await signOut(auth);
@@ -152,7 +147,7 @@ const authSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      
+
       .addCase(initializeAuth.pending, state => {
         state.loading = true;
         state.error = null;
