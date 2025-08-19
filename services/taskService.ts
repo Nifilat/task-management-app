@@ -143,8 +143,6 @@ export const taskService = {
   },
 
   async toggleFavorite(taskId: string, isFavorite: boolean, userId: string): Promise<void> {
-    console.log('toggleFavorite args:', { taskId, isFavorite, userId });
-
     if (!taskId || !userId) {
       throw new Error(
         `toggleFavorite called without required data: taskId=${taskId}, userId=${userId}`
