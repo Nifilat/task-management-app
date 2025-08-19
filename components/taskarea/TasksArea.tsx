@@ -1,16 +1,25 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import SearchInput from './SearchInput';
+import { useState, useEffect, useMemo, useCallback } from 'react';
+import dynamic from 'next/dynamic';
+const SearchInput = dynamic(() => import('./SearchInput'), { ssr: false });
 import { Card, CardHeader, CardFooter, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
 import { X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import PriorityDropdown from '../dropdown/PriorityDropdown';
-import StatusDropdown from '../dropdown/StatusDropdown';
-import ViewColumnsDropDown from '../dropdown/ViewColumnsDropdown';
-import { TasksTable } from './TasksTable';
-import TableSkeleton from './TableSkeleton';
+
+
+const PriorityDropdown = dynamic(() => import('../dropdown/PriorityDropdown'));
+
+const StatusDropdown = dynamic(() => import('../dropdown/StatusDropdown'));
+
+const ViewColumnsDropDown = dynamic(() => import('../dropdown/ViewColumnsDropdown'), {
+  ssr: false,
+});
+
+const TasksTable = dynamic(() => import('./TasksTable').then(m => m.TasksTable), { ssr: false });
+
+const TableSkeleton = dynamic(() => import('./TableSkeleton'));
 import { tasksColumns } from './TaskColumns';
 import {
   useReactTable,
@@ -21,7 +30,7 @@ import {
   getSortedRowModel,
   getPaginationRowModel,
 } from '@tanstack/react-table';
-import PaginationArea from './pagination/PaginationArea';
+const PaginationArea = dynamic(() => import('./pagination/PaginationArea'));
 import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { useAppSelector } from '@/hooks/useAppSelector';
 import { fetchTasks, selectTasks, selectTasksLoading } from '@/lib/features/tasks/tasksSlice';
@@ -93,9 +102,11 @@ const TasksArea = () => {
 
   useEffect(() => {}, [columnFilters, sorting, table, checkedPriorities, checkedStatuses, query]);
 
-  const handleResetFilters = () => {
+  const handleResetFilters = useCallback(() => {
     dispatch(resetPrioritiesAndStatuses());
-  };
+  }, [dispatch]);
+
+  const memoizedTable = useMemo(() => table, [table]);
 
   if (!user) {
     return <TableSkeleton />;
@@ -120,7 +131,7 @@ const TasksArea = () => {
                 </Button>
               </div>
 
-              <ViewColumnsDropDown table={table} />
+              <ViewColumnsDropDown table={memoizedTable} />
             </div>
           </div>
 
@@ -138,17 +149,21 @@ const TasksArea = () => {
             </div>
 
             <div className="ml-4">
-              <ViewColumnsDropDown table={table} />
+              <ViewColumnsDropDown table={memoizedTable} />
             </div>
           </div>
         </CardHeader>
 
         <CardContent className="px-4 sm:px-6">
-          {loading ? <TableSkeleton /> : <TasksTable columns={tasksColumns} table={table} />}
+          {loading ? (
+            <TableSkeleton />
+          ) : (
+            <TasksTable columns={tasksColumns} table={memoizedTable} />
+          )}
         </CardContent>
 
         <CardFooter className="px-4 sm:px-6">
-          <PaginationArea table={table} />
+          <PaginationArea table={memoizedTable} />
         </CardFooter>
       </Card>
     </div>
