@@ -2,9 +2,10 @@
 
 import React from 'react';
 import { Provider } from 'react-redux';
-import { store } from '@/store/store';
+import { persistor, store } from '@/store/store';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from './ui/sonner';
+import { PersistGate } from 'redux-persist/integration/react';
 
 interface AppProvidersProps {
   children: React.ReactNode;
@@ -13,10 +14,17 @@ interface AppProvidersProps {
 const AppProviders: React.FC<AppProvidersProps> = ({ children }) => {
   return (
     <Provider store={store}>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-        {children}
-        <Toaster />
-      </ThemeProvider>
+      <PersistGate loading={null} persistor={persistor}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
+      </PersistGate>
     </Provider>
   );
 };
