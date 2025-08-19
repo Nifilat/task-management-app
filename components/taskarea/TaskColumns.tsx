@@ -198,6 +198,24 @@ export const tasksColumns: ColumnDef<Task>[] = [
     enableSorting: true,
   },
   {
+    accessorKey: 'description',
+    header: ({ column }) => <SortableHeader column={column} label="Description" />,
+    cell: ({ row }) => {
+      const description = row.original.description;
+      if (!description) {
+        return <span className="text-muted-foreground text-sm">No description</span>;
+      }
+      return (
+        <div className="max-w-xs">
+          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">
+            {description}
+          </p>
+        </div>
+      );
+    },
+    enableSorting: false,
+  },
+  {
     accessorKey: 'createdAt',
     header: ({ column }) => <SortableHeader column={column} label="Created At" />,
     cell: ({ row }) => {
