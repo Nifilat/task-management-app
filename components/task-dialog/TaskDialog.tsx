@@ -34,7 +34,7 @@ import { useEffect, useState } from 'react';
 import type { TaskInput } from '@/data/types';
 import { toast } from 'sonner';
 
-export default function TaskDialog() {
+export default function TaskDialog({ hideMobileTrigger = false }: { hideMobileTrigger?: boolean }) {
   const methods = useForm<TaskFormData>({
     resolver: zodResolver(taskFormSchema),
     defaultValues: {
@@ -134,20 +134,34 @@ export default function TaskDialog() {
       </DialogTrigger>
 
       {/* Mobile Plus Icon Button */}
-      <DialogTrigger asChild>
-        <button
-          aria-label="Add task"
-          className="inline-flex md:hidden fixed bottom-4 right-4 z-50 p-3 rounded-full bg-primary text-white shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
-          onClick={() => {
-            dispatch(setSelectedTask(null));
-            setIsOpen(true);
-          }}
-        >
-          <Plus className="w-6 h-6" />
-        </button>
-      </DialogTrigger>
+      {!hideMobileTrigger && (
+        <DialogTrigger asChild>
+          <button
+            aria-label="Add task"
+            className="inline-flex md:hidden fixed bottom-4 right-4 z-50 p-3 rounded-full bg-primary text-white shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+            onClick={() => {
+              dispatch(setSelectedTask(null));
+              setIsOpen(true);
+            }}
+          >
+            <Plus className="w-6 h-6" />
+          </button>
+        </DialogTrigger>
+      )}
 
-      <DialogContent className="max-w-4xl">
+      <DialogContent
+        className="max-w-4xl"
+        onOpenAutoFocus={e => {
+          e.preventDefault();
+          setTimeout(() => {
+            const input = document.getElementById('task-title-input') as HTMLInputElement | null;
+            input?.focus();
+          }, 0);
+        }}
+        onCloseAutoFocus={e => {
+          e.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edit Task' : 'Add New Task'}</DialogTitle>
           <DialogDescription>
