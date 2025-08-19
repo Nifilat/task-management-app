@@ -11,6 +11,7 @@ export type TaskService = {
   isFavorite: boolean;
   priority: Priority;
   status: Status;
+  description?: string;
   createdAt: Date;
   updatedAt?: Date;
   userId: string;
@@ -23,6 +24,7 @@ export type Task = {
   isFavorite: boolean;
   priority: Priority;
   status: Status;
+  description?: string;
   createdAt: string;
   updatedAt?: string;
   userId: string;
