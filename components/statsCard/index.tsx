@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, memo } from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '../ui/card';
 import { useAppSelector } from '@/hooks/useAppSelector';
 import { selectAllTasks, selectTasksLoading } from '@/lib/features/tasks/tasksSlice';
@@ -9,7 +9,11 @@ import type { Task } from '@/data/types';
 import { ListTodoIcon, CircleCheckIcon, ClockIcon, TriangleAlertIcon } from 'lucide-react';
 import type { StatsCardContainerProps } from './types';
 
-function SingleStatsCard({ title, value, icon: Icon }: StatsCardProps) {
+const SingleStatsCard = memo(function SingleStatsCard({
+  title,
+  value,
+  icon: Icon,
+}: StatsCardProps) {
   return (
     <Card className="p-4 shadow-none hover:shadow-sm transition-shadow">
       <CardHeader className="p-0 flex items-center justify-between">
@@ -25,7 +29,7 @@ function SingleStatsCard({ title, value, icon: Icon }: StatsCardProps) {
       </CardHeader>
     </Card>
   );
-}
+});
 
 function StatsCard({
   className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-7 p-4 sm:p-6',
