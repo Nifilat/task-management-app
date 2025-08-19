@@ -8,7 +8,6 @@ import { Button } from '../ui/button';
 import { X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
-
 const PriorityDropdown = dynamic(() => import('../dropdown/PriorityDropdown'));
 
 const StatusDropdown = dynamic(() => import('../dropdown/StatusDropdown'));

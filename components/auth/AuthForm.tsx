@@ -120,10 +120,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
           {/* Dynamic Fields */}
           {config.fields.map((field, index) => renderField(field, index))}
 
-          {/* Error Display */}
           {error && <div className="text-destructive text-sm text-center">{error}</div>}
 
-          {/* Submit Button */}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? config.loadingText : config.submitText}
           </Button>
