@@ -3,6 +3,7 @@
 import React from 'react';
 import { ModeToggle } from '../mode-toggle';
 import Image from 'next/image';
+import dynamic from 'next/dynamic';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -17,19 +18,30 @@ import { getAvatarUrl } from '@/utils/auth';
 import { useSessionTimeout } from '@/hooks/useSessionTimeout';
 import SessionWarningModal from '@/components/auth/SessionWarningModal';
 import { LogOut, Settings, User, Menu as MenuIcon } from 'lucide-react';
-import TaskDialog from '../task-dialog/TaskDialog';
-import { Sheet, SheetTrigger, SheetContent } from '@/components/ui/sheet';
+import {
+  Sheet,
+  SheetTrigger,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from '@/components/ui/sheet';
 
 function AppNameLogo() {
   return (
-    <header className="flex items-center gap-2">
-      <Image src="/logo.png" width={40} height={40} alt="Task Manager Logo" priority />
+    <div className="flex items-center gap-2" role="img" aria-label="Task Manager logo">
+      <Image src="/logo.png" width={40} height={40} alt="Task Manager Logo" priority sizes="40px" />
       <h1 className="font-semibold text-2xl max-md:hidden">
         Task <span className="font-normal text-primary">Manager</span>
       </h1>
-    </header>
+    </div>
   );
 }
+
+const TaskDialogDynamic = dynamic(() => import('../task-dialog/TaskDialog'), {
+  ssr: false,
+  loading: () => null,
+});
 
 export default function Navbar() {
   const { user, logout } = useAuth();
@@ -50,53 +62,58 @@ export default function Navbar() {
 
   return (
     <>
-      <div className="relative w-full h-[92px] flex items-center justify-between px-6 border-b">
+      <nav
+        className="relative w-full h-[92px] flex items-center justify-between px-6 border-b"
+        aria-label="Primary"
+      >
         <AppNameLogo />
 
-        {/* Desktop: TaskDialog, ModeToggle, Profile Dropdown */}
-        <div className="hidden md:flex items-center gap-3">
-          <TaskDialog />
-          <ModeToggle />
+        {/* Right-side actions: TaskDialog always mounted; ModeToggle & Profile only on desktop */}
+        <div className="flex items-center gap-3">
+          <TaskDialogDynamic hideMobileTrigger />
+          <div className="hidden md:flex items-center gap-3">
+            <ModeToggle />
 
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Avatar className="cursor-pointer hover:ring-2 hover:ring-ring transition-all">
-                <AvatarImage
-                  src={avatarUrl}
-                  alt={fullName}
-                  onError={() => {
-                    console.error('Avatar image failed to load:', avatarUrl);
-                  }}
-                />
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56" align="end">
-              <DropdownMenuLabel>
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">{fullName}</span>
-                  <span className="text-xs text-muted-foreground">{user.email}</span>
-                </div>
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Avatar className="cursor-pointer hover:ring-2 hover:ring-ring transition-all">
+                  <AvatarImage
+                    src={avatarUrl}
+                    alt={fullName}
+                    onError={() => {
+                      console.error('Avatar image failed to load:', avatarUrl);
+                    }}
+                  />
+                </Avatar>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end">
+                <DropdownMenuLabel>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">{fullName}</span>
+                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
 
-              <DropdownMenuItem>
-                <User className="mr-2 h-4 w-4" />
-                <span>Profile</span>
-              </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
 
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
 
-              <DropdownMenuSeparator />
+                <DropdownMenuSeparator />
 
-              <DropdownMenuItem variant="destructive" onClick={handleLogout}>
-                <LogOut className="mr-2 h-4 w-4" />
-                <span>Log out</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                <DropdownMenuItem variant="destructive" onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Log out</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </div>
 
         {/* Mobile: Sheet Trigger (Hamburger) */}
@@ -114,6 +131,11 @@ export default function Navbar() {
             side="left"
             className="p-6 flex flex-col gap-6 bg-sidebar text-sidebar-foreground"
           >
+            {/* A11y title/description for the sheet (hidden visually) */}
+            <SheetHeader className="sr-only">
+              <SheetTitle>Mobile navigation menu</SheetTitle>
+              <SheetDescription>Open application navigation and actions</SheetDescription>
+            </SheetHeader>
             {/* User Info */}
             <div className="flex items-center gap-4">
               <Avatar className="w-12 h-12">
@@ -164,11 +186,8 @@ export default function Navbar() {
           </SheetContent>
         </Sheet>
 
-        {/* Mobile TaskDialog - Fixed position */}
-        <div className="fixed bottom-4 right-4 md:hidden z-50">
-          <TaskDialog />
-        </div>
-      </div>
+        {/* TaskDialog renders its own mobile trigger; duplicate instance removed */}
+      </nav>
 
       {/* Session Warning Modal */}
       <SessionWarningModal
