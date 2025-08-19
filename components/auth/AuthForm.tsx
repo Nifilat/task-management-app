@@ -41,12 +41,13 @@ const AuthForm: React.FC<AuthFormProps> = ({
               name={gridField.name}
               render={({ field: formField }) => (
                 <FormItem>
-                  <FormLabel>{gridField.label}</FormLabel>
+                  <FormLabel className="pl-1">{gridField.label}</FormLabel>
                   <FormControl>
                     <Input
                       {...formField}
                       type={gridField.type}
                       placeholder={gridField.placeholder}
+                      className="h-11 px-4 py-3"
                     />
                   </FormControl>
                   <FormMessage />
@@ -69,9 +70,14 @@ const AuthForm: React.FC<AuthFormProps> = ({
         name={field.name}
         render={({ field: formField }) => (
           <FormItem>
-            <FormLabel>{field.label}</FormLabel>
+            <FormLabel className="pl-1">{field.label}</FormLabel>
             <FormControl>
-              <Input {...formField} type={field.type} placeholder={field.placeholder} />
+              <Input
+                {...formField}
+                type={field.type}
+                placeholder={field.placeholder}
+                className="h-11 px-4 py-3"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
