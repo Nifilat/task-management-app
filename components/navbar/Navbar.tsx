@@ -68,9 +68,12 @@ export default function Navbar() {
       >
         <AppNameLogo />
 
-        {/* Right-side actions: TaskDialog always mounted; ModeToggle & Profile only on desktop */}
         <div className="flex items-center gap-3">
-          <TaskDialogDynamic hideMobileTrigger />
+          {/* Desktop TaskDialog */}
+          <div className="hidden md:block">
+            <TaskDialogDynamic />
+          </div>
+
           <div className="hidden md:flex items-center gap-3">
             <ModeToggle />
 
@@ -116,7 +119,6 @@ export default function Navbar() {
           </div>
         </div>
 
-        {/* Mobile: Sheet Trigger (Hamburger) */}
         <Sheet>
           <SheetTrigger asChild>
             <button
@@ -131,7 +133,6 @@ export default function Navbar() {
             side="left"
             className="p-6 flex flex-col gap-6 bg-sidebar text-sidebar-foreground"
           >
-            {/* A11y title/description for the sheet (hidden visually) */}
             <SheetHeader className="sr-only">
               <SheetTitle>Mobile navigation menu</SheetTitle>
               <SheetDescription>Open application navigation and actions</SheetDescription>
@@ -185,9 +186,12 @@ export default function Navbar() {
             </div>
           </SheetContent>
         </Sheet>
-
-        {/* TaskDialog renders its own mobile trigger; duplicate instance removed */}
       </nav>
+
+      {/* Mobile FAB - Only show on mobile, positioned outside nav */}
+      <div className="md:hidden">
+        <TaskDialogDynamic />
+      </div>
 
       {/* Session Warning Modal */}
       <SessionWarningModal
