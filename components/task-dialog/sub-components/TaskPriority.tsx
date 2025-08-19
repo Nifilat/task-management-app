@@ -16,7 +16,7 @@ export default function TaskPriority() {
 
   return (
     <div className="flex flex-col gap-2">
-      <Label className="opacity text-sm font-medium">Task Priority</Label>
+      <Label className="opacity text-sm font-medium pl-1">Task Priority</Label>
       <Controller
         name="priority"
         defaultValue="Low"
