@@ -1,4 +1,3 @@
-// store/authSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { User as FirebaseUser, onAuthStateChanged, signOut } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
@@ -20,7 +19,7 @@ const initialState: AuthState = {
   initialized: false,
 };
 
-// Helper function to convert Firestore timestamps to serializable format
+
 const serializeTimestamp = (timestamp: any): string | null => {
   if (!timestamp) return null;
   if (timestamp?.toDate) return timestamp.toDate().toISOString();
@@ -28,19 +27,19 @@ const serializeTimestamp = (timestamp: any): string | null => {
   return null;
 };
 
-// Helper function to deserialize timestamps back to Date objects
+
 const deserializeTimestamp = (timestamp: string | null): Date | null => {
   if (!timestamp) return null;
   return new Date(timestamp);
 };
 
-// Async thunk for initializing auth state
+
 export const initializeAuth = createAsyncThunk('auth/initialize', async (_, { dispatch }) => {
   return new Promise<AuthUser | null>(resolve => {
     let hasResolved = false;
 
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
-      if (hasResolved) return; // Prevent multiple resolutions
+      if (hasResolved) return; 
       hasResolved = true;
 
       if (firebaseUser) {
@@ -73,13 +72,13 @@ export const initializeAuth = createAsyncThunk('auth/initialize', async (_, { di
         resolve(null);
       }
 
-      // Clean up the listener
+      
       unsubscribe();
     });
   });
 });
 
-// Async thunk for refreshing user data
+
 export const refreshUserData = createAsyncThunk(
   'auth/refreshUser',
   async (_, { rejectWithValue }) => {
@@ -117,7 +116,7 @@ export const refreshUserData = createAsyncThunk(
   }
 );
 
-// Async thunk for logout
+
 export const logoutUser = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
   try {
     await signOut(auth);
@@ -153,7 +152,7 @@ const authSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-      // Initialize auth
+      
       .addCase(initializeAuth.pending, state => {
         state.loading = true;
         state.error = null;
