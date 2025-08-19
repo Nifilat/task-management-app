@@ -15,7 +15,7 @@ export default function TaskTitle() {
         id="task-title-input"
         placeholder="Joe Doe..."
         {...register('title')}
-        className="h-11"
+        className="h-11 px-4 py-3"
       />
       {errors.title && <p className="text-red-500 text-sm">{errors.title.message}</p>}
     </div>
