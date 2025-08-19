@@ -23,7 +23,7 @@ export default function TaskLabel() {
 
   return (
     <div className="flex flex-col gap-2">
-      <Label className="opacity text-sm font-medium">Task Label</Label>
+      <Label className="opacity text-sm font-medium pl-1">Task Label</Label>
       <Controller
         name="label"
         defaultValue="Bug"
