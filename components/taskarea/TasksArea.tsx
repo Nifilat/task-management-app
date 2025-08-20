@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import dynamic from 'next/dynamic';
+
 const SearchInput = dynamic(() => import('./SearchInput'), { ssr: false });
 import { Card, CardHeader, CardFooter, CardContent } from '../ui/card';
 import { Button } from '../ui/button';
@@ -9,16 +10,15 @@ import { X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
 const PriorityDropdown = dynamic(() => import('../dropdown/PriorityDropdown'));
-
 const StatusDropdown = dynamic(() => import('../dropdown/StatusDropdown'));
-
 const ViewColumnsDropDown = dynamic(() => import('../dropdown/ViewColumnsDropdown'), {
   ssr: false,
 });
-
-const TasksTable = dynamic(() => import('./TasksTable').then(m => m.TasksTable), { ssr: false });
-
+const TasksTable = dynamic(() => import('./TasksTable').then(m => m.TasksTable), {
+  ssr: false,
+});
 const TableSkeleton = dynamic(() => import('./TableSkeleton'));
+
 import { tasksColumns } from './TaskColumns';
 import {
   useReactTable,
@@ -29,12 +29,14 @@ import {
   getSortedRowModel,
   getPaginationRowModel,
 } from '@tanstack/react-table';
+
 const PaginationArea = dynamic(() => import('./pagination/PaginationArea'));
+
 import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { useAppSelector } from '@/hooks/useAppSelector';
 import { fetchTasks, selectTasks, selectTasksLoading } from '@/lib/features/tasks/tasksSlice';
 import {
-  resetPrioritiesAndStatuses,
+  resetFilters,
   selectCheckedPriorities,
   selectCheckedStatuses,
   selectQuery,
@@ -57,6 +59,15 @@ const TasksArea = () => {
     pageIndex: 0,
     pageSize: 10,
   });
+
+  // Check for any active filters
+  const hasActiveFilters = useMemo(() => {
+    const hasQuery = query && query.trim().length > 0;
+    const hasPriorities = Array.isArray(checkedPriorities) && checkedPriorities.length > 0;
+    const hasStatuses = Array.isArray(checkedStatuses) && checkedStatuses.length > 0;
+
+    return hasQuery || hasPriorities || hasStatuses;
+  }, [query, checkedPriorities, checkedStatuses]);
 
   useEffect(() => {
     if (user) {
@@ -102,10 +113,22 @@ const TasksArea = () => {
   useEffect(() => {}, [columnFilters, sorting, table, checkedPriorities, checkedStatuses, query]);
 
   const handleResetFilters = useCallback(() => {
-    dispatch(resetPrioritiesAndStatuses());
+    dispatch(resetFilters());
   }, [dispatch]);
 
   const memoizedTable = useMemo(() => table, [table]);
+
+  // Reset button component to avoid duplication
+  const ResetButton = () => {
+    if (!hasActiveFilters) return null;
+
+    return (
+      <Button onClick={handleResetFilters} variant={'ghost'} className="h-8 md:h-10" size="sm">
+        <span>Reset</span>
+        <X className="ml-1 h-4 w-4" />
+      </Button>
+    );
+  };
 
   if (!user) {
     return <TableSkeleton />;
@@ -115,6 +138,7 @@ const TasksArea = () => {
     <div className="px-4 sm:px-7 mt-5">
       <Card>
         <CardHeader className="space-y-4">
+          {/* Mobile Layout */}
           <div className="flex flex-col space-y-3 md:hidden">
             <div className="w-full">
               <SearchInput />
@@ -124,16 +148,14 @@ const TasksArea = () => {
               <div className="flex flex-wrap items-center gap-2">
                 <StatusDropdown />
                 <PriorityDropdown />
-                <Button onClick={handleResetFilters} variant={'ghost'} className="h-8" size="sm">
-                  <span>Reset</span>
-                  <X className="ml-1 h-4 w-4" />
-                </Button>
+                <ResetButton />
               </div>
 
               <ViewColumnsDropDown table={memoizedTable} />
             </div>
           </div>
 
+          {/* Desktop Layout */}
           <div className="hidden md:flex md:items-center md:justify-between">
             <div className="flex items-center gap-2 flex-1 max-w-2xl">
               <div className="flex-1 min-w-0">
@@ -141,10 +163,7 @@ const TasksArea = () => {
               </div>
               <StatusDropdown />
               <PriorityDropdown />
-              <Button onClick={handleResetFilters} variant={'ghost'} className="h-10">
-                <span>Reset</span>
-                <X className="ml-1 h-4 w-4" />
-              </Button>
+              <ResetButton />
             </div>
 
             <div className="ml-4">
