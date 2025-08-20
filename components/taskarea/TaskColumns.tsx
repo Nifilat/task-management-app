@@ -1,5 +1,3 @@
-'use client';
-
 import { Priority, Status, Task } from '@/data/types';
 import {
   Timer,
@@ -89,7 +87,7 @@ const SortableHeader = ({ column, label }: SortableHeaderProps) => {
           <ArrowDown className="mr-2 h-4 w-4" />
           Desc
         </DropdownMenuItem>
-        {label !== 'Title' && (
+        {label !== 'Title' && label !== 'Task ID' && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -137,8 +135,34 @@ export const tasksColumns: ColumnDef<Task>[] = [
   },
   {
     accessorKey: 'taskId',
-    header: 'Task',
+    header: ({ column }) => <SortableHeader column={column} label="Task ID" />,
+    cell: ({ row }) => {
+      const taskId = row.original.taskId;
+      return <span className="font-mono text-sm">{taskId}</span>;
+    },
     enableSorting: true,
+    // Custom sorting function for taskId to handle numeric sorting
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      // Extract numeric part if taskId has a pattern like "TASK-001"
+      const getNumericPart = (id: string) => {
+        const match = id.match(/(\d+)$/);
+        return match ? parseInt(match[1], 10) : 0;
+      };
+
+      const numA = getNumericPart(a);
+      const numB = getNumericPart(b);
+
+      // If both have numeric parts, sort numerically
+      if (numA !== 0 && numB !== 0) {
+        return numA - numB;
+      }
+
+      // Otherwise, sort alphabetically
+      return a.localeCompare(b);
+    },
   },
   {
     accessorKey: 'isFavorite',
