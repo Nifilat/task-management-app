@@ -10,21 +10,13 @@ export default function Home() {
 
   useEffect(() => {
     if (!loading) {
-      if (user) {
-        router.replace('/tasks');
-      } else {
-        router.replace('/login');
-      }
+      router.replace(user ? '/tasks' : '/login');
     }
   }, [user, loading, router]);
 
-  if (loading) {
-    return (
-      <div className="font-sans min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  return null;
+  return (
+    <div className="font-sans min-h-screen flex items-center justify-center bg-background">
+      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+    </div>
+  );
 }
