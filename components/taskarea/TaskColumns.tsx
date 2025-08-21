@@ -25,6 +25,7 @@ import { priorityFilter, statusFilter, titleFilter } from '@/utils/tableFilters'
 import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { setSelectedTask } from '@/lib/features/tasks/tasksSlice';
 import { formatDateString } from '@/utils/date';
+import { labelConfig } from '@/constants/shared';
 
 function renderStatusIcons(status: Status) {
   switch (status) {
@@ -141,12 +142,11 @@ export const tasksColumns: ColumnDef<Task>[] = [
       return <span className="font-mono text-sm">{taskId}</span>;
     },
     enableSorting: true,
-    // Custom sorting function for taskId to handle numeric sorting
+
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
       const b = rowB.getValue(columnId) as string;
 
-      // Extract numeric part if taskId has a pattern like "TASK-001"
       const getNumericPart = (id: string) => {
         const match = id.match(/(\d+)$/);
         return match ? parseInt(match[1], 10) : 0;
@@ -155,12 +155,10 @@ export const tasksColumns: ColumnDef<Task>[] = [
       const numA = getNumericPart(a);
       const numB = getNumericPart(b);
 
-      // If both have numeric parts, sort numerically
       if (numA !== 0 && numB !== 0) {
         return numA - numB;
       }
 
-      // Otherwise, sort alphabetically
       return a.localeCompare(b);
     },
   },
@@ -179,9 +177,24 @@ export const tasksColumns: ColumnDef<Task>[] = [
     cell: ({ row }) => {
       const taskLabel = row.original.label;
       const taskTitle = row.original.title;
+      const labelColor = labelConfig[taskLabel]?.color;
+      const labelBgColor = labelConfig[taskLabel]?.bgColor;
+      const LabelIcon = labelConfig[taskLabel]?.icon;
+
       return (
         <div className="flex items-center gap-2">
-          <Badge variant={'outline'}>{taskLabel}</Badge>
+          <Badge
+            variant="outline"
+            className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium"
+            style={{
+              color: labelColor,
+              borderColor: labelColor,
+              backgroundColor: labelBgColor,
+            }}
+          >
+            {LabelIcon && <LabelIcon size={12} />}
+            {taskLabel}
+          </Badge>
           <span>{taskTitle}</span>
         </div>
       );
