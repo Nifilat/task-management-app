@@ -1,7 +1,4 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { User as FirebaseUser, onAuthStateChanged, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
-import { auth, db } from '@/config/firebase';
 import type { AuthUser } from '@/types/auth';
 import { getAvatarUrl } from '@/utils/auth';
 
@@ -32,10 +29,18 @@ const deserializeTimestamp = (timestamp: string | null): Date | null => {
 };
 
 export const initializeAuth = createAsyncThunk('auth/initialize', async (_, { dispatch }) => {
+  const [{ getAuth, onAuthStateChanged }, { getDoc, doc }, { app, db }] = await Promise.all([
+    import('firebase/auth'),
+    import('firebase/firestore'),
+    import('@/config/firebase'),
+  ]);
+
+  const auth = getAuth(app);
+
   return new Promise<AuthUser | null>(resolve => {
     let hasResolved = false;
 
-    const unsubscribe = onAuthStateChanged(auth, async (firebaseUser: FirebaseUser | null) => {
+    const unsubscribe = onAuthStateChanged(auth, async firebaseUser => {
       if (hasResolved) return;
       hasResolved = true;
 
@@ -60,6 +65,7 @@ export const initializeAuth = createAsyncThunk('auth/initialize', async (_, { di
             createdAt: deserializeTimestamp(serializeTimestamp(userData.createdAt)),
             updatedAt: deserializeTimestamp(serializeTimestamp(userData.updatedAt)),
           };
+
           resolve(finalUser);
         } catch (error: any) {
           console.error('Error fetching user data:', error.message);
@@ -78,12 +84,17 @@ export const initializeAuth = createAsyncThunk('auth/initialize', async (_, { di
 export const refreshUserData = createAsyncThunk(
   'auth/refreshUser',
   async (_, { rejectWithValue }) => {
-    const firebaseUser = auth.currentUser;
-    if (!firebaseUser) {
-      return null;
-    }
-
     try {
+      const [{ getAuth }, { getDoc, doc }, { app, db }] = await Promise.all([
+        import('firebase/auth'),
+        import('firebase/firestore'),
+        import('@/config/firebase'),
+      ]);
+
+      const auth = getAuth(app);
+      const firebaseUser = auth.currentUser;
+      if (!firebaseUser) return null;
+
       const userDoc = await getDoc(doc(db, 'users', firebaseUser.uid));
       const userData = userDoc.exists() ? userDoc.data() : {};
 
@@ -94,7 +105,7 @@ export const refreshUserData = createAsyncThunk(
       const profilePhoto =
         userData.profilePhoto ?? firebaseUser.photoURL ?? getAvatarUrl(firstName, lastName);
 
-      const updatedUser: AuthUser = {
+      return {
         uid: firebaseUser.uid,
         firstName,
         lastName,
@@ -102,9 +113,7 @@ export const refreshUserData = createAsyncThunk(
         profilePhoto,
         createdAt: deserializeTimestamp(serializeTimestamp(userData.createdAt)),
         updatedAt: deserializeTimestamp(serializeTimestamp(userData.updatedAt)),
-      };
-
-      return updatedUser;
+      } as AuthUser;
     } catch (error: any) {
       console.error('Error refreshing user:', error);
       return rejectWithValue(error.message);
@@ -114,6 +123,10 @@ export const refreshUserData = createAsyncThunk(
 
 export const logoutUser = createAsyncThunk('auth/logout', async (_, { rejectWithValue }) => {
   try {
+    const { getAuth, signOut } = await import('firebase/auth');
+    const { app } = await import('@/config/firebase');
+    const auth = getAuth(app);
+
     await signOut(auth);
     return null;
   } catch (error: any) {
@@ -147,7 +160,6 @@ const authSlice = createSlice({
   },
   extraReducers: builder => {
     builder
-
       .addCase(initializeAuth.pending, state => {
         state.loading = true;
         state.error = null;
@@ -163,10 +175,6 @@ const authSlice = createSlice({
         state.error = action.error.message || 'Failed to initialize auth';
         state.initialized = true;
       })
-      // Refresh user
-      .addCase(refreshUserData.pending, state => {
-        state.error = null;
-      })
       .addCase(refreshUserData.fulfilled, (state, action) => {
         state.user = action.payload;
         state.loading = false;
@@ -175,11 +183,6 @@ const authSlice = createSlice({
       .addCase(refreshUserData.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
-      })
-      // Logout
-      .addCase(logoutUser.pending, state => {
-        state.loading = true;
-        state.error = null;
       })
       .addCase(logoutUser.fulfilled, state => {
         state.user = null;
