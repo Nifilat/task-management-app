@@ -21,7 +21,7 @@ import {
 import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
 import { TasksDropdown } from '../dropdown/TasksDropdown';
-import { priorityFilter, statusFilter, titleFilter } from '@/utils/tableFilters';
+import { priorityFilter, statusFilter } from '@/utils/tableFilters';
 import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { setSelectedTask } from '@/lib/features/tasks/tasksSlice';
 import { formatDateString } from '@/utils/date';
@@ -135,6 +135,7 @@ export const tasksColumns: ColumnDef<Task>[] = [
     enableHiding: false,
   },
   {
+    id: 'taskId',
     accessorKey: 'taskId',
     header: ({ column }) => <SortableHeader column={column} label="Task ID" />,
     cell: ({ row }) => {
@@ -178,19 +179,14 @@ export const tasksColumns: ColumnDef<Task>[] = [
       const taskLabel = row.original.label;
       const taskTitle = row.original.title;
       const labelColor = labelConfig[taskLabel]?.color;
-      const labelBgColor = labelConfig[taskLabel]?.bgColor;
       const LabelIcon = labelConfig[taskLabel]?.icon;
 
       return (
         <div className="flex items-center gap-2">
           <Badge
             variant="outline"
-            className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium"
-            style={{
-              color: labelColor,
-              borderColor: labelColor,
-              backgroundColor: labelBgColor,
-            }}
+            className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium border-current bg-current/5"
+            style={{ color: labelColor }}
           >
             {LabelIcon && <LabelIcon size={12} />}
             {taskLabel}
@@ -199,7 +195,6 @@ export const tasksColumns: ColumnDef<Task>[] = [
         </div>
       );
     },
-    filterFn: titleFilter,
     enableSorting: true,
   },
   {
