@@ -41,6 +41,7 @@ import {
   selectCheckedStatuses,
   selectQuery,
 } from '@/lib/features/filters/filtersSlice';
+import { globalTaskSearch } from '@/utils/tableFilters';
 
 const TasksArea = () => {
   const dispatch = useAppDispatch();
@@ -63,9 +64,8 @@ const TasksArea = () => {
   // Check for any active filters
   const hasActiveFilters = useMemo(() => {
     const hasQuery = query && query.trim().length > 0;
-    const hasPriorities = Array.isArray(checkedPriorities) && checkedPriorities.length > 0;
-    const hasStatuses = Array.isArray(checkedStatuses) && checkedStatuses.length > 0;
-
+    const hasPriorities = checkedPriorities.length > 0;
+    const hasStatuses = checkedStatuses.length > 0;
     return hasQuery || hasPriorities || hasStatuses;
   }, [query, checkedPriorities, checkedStatuses]);
 
@@ -79,10 +79,12 @@ const TasksArea = () => {
     data: tasks || [],
     columns,
     state: {
+      globalFilter: query,
       sorting,
       columnFilters,
       pagination,
     },
+    globalFilterFn: globalTaskSearch,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onPaginationChange: setPagination,
@@ -95,10 +97,6 @@ const TasksArea = () => {
   useEffect(() => {
     const newFilters: ColumnFiltersState = [];
 
-    if (query) {
-      newFilters.push({ id: 'title', value: query });
-    }
-
     if (checkedPriorities.length > 0) {
       newFilters.push({ id: 'priority', value: checkedPriorities });
     }
@@ -108,9 +106,7 @@ const TasksArea = () => {
     }
 
     setColumnFilters(newFilters);
-  }, [query, checkedPriorities, checkedStatuses]);
-
-  useEffect(() => {}, [columnFilters, sorting, table, checkedPriorities, checkedStatuses, query]);
+  }, [checkedPriorities, checkedStatuses]);
 
   const handleResetFilters = useCallback(() => {
     dispatch(resetFilters());
@@ -118,12 +114,10 @@ const TasksArea = () => {
 
   const memoizedTable = useMemo(() => table, [table]);
 
-  // Reset button component to avoid duplication
   const ResetButton = () => {
     if (!hasActiveFilters) return null;
-
     return (
-      <Button onClick={handleResetFilters} variant={'ghost'} className="h-8 md:h-10" size="sm">
+      <Button onClick={handleResetFilters} variant="ghost" className="h-8 md:h-10" size="sm">
         <span>Reset</span>
         <X className="ml-1 h-4 w-4" />
       </Button>
@@ -150,7 +144,6 @@ const TasksArea = () => {
                 <PriorityDropdown />
                 <ResetButton />
               </div>
-
               <ViewColumnsDropDown table={memoizedTable} />
             </div>
           </div>
@@ -165,7 +158,6 @@ const TasksArea = () => {
               <PriorityDropdown />
               <ResetButton />
             </div>
-
             <div className="ml-4">
               <ViewColumnsDropDown table={memoizedTable} />
             </div>
