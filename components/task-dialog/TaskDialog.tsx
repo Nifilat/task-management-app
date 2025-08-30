@@ -95,7 +95,6 @@ export default function TaskDialog() {
           { description: result.message }
         );
       } else {
-        // Use TaskInput type which excludes taskId, createdAt, and updatedAt
         const newTask: TaskInput = {
           ...data,
           isFavorite: false,
@@ -135,7 +134,7 @@ export default function TaskDialog() {
         </Button>
       </DialogTrigger>
 
-      {/* Mobile FAB - Fixed positioning with better z-index management */}
+      {/* Mobile FAB */}
       <DialogTrigger asChild className="md:hidden">
         <button
           aria-label="Add new task"
@@ -152,7 +151,6 @@ export default function TaskDialog() {
       <DialogContent
         className="max-w-4xl max-h-[90vh] overflow-y-auto"
         onOpenAutoFocus={e => {
-          // Prevent default auto-focus to avoid ARIA issues
           e.preventDefault();
         }}
       >
