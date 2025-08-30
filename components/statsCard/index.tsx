@@ -34,7 +34,6 @@ const SingleStatsCard = memo(function SingleStatsCard({
 function StatsCard({
   className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-7 p-4 sm:p-6',
 }: StatsCardContainerProps) {
-  // Use RTK selectors instead of Zustand store
   const tasks = useAppSelector(selectAllTasks);
   const loading = useAppSelector(selectTasksLoading);
 
