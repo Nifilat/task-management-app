@@ -44,7 +44,6 @@ const AuthPage: React.FC = () => {
   const loginForm = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
-    mode: 'onBlur',
   });
 
   const registerForm = useForm<RegisterSchema>({
@@ -56,7 +55,6 @@ const AuthPage: React.FC = () => {
       password: '',
       confirmPassword: '',
     },
-    mode: 'onBlur',
   });
 
   const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -140,9 +138,7 @@ const AuthPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
-          <CardTitle className="lcp-optimized text-xl sm:text-2xl font-bold text-center">
-            Task Manager
-          </CardTitle>
+          <CardTitle className="text-xl sm:text-2xl font-bold text-center">Task Manager</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full" onValueChange={handleTabChange}>
