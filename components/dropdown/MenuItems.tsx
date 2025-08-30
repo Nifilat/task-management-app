@@ -1,5 +1,6 @@
 'use client';
 
+import React from 'react';
 import { DropdownMenuItem, DropdownMenuShortcut } from '@/components/ui/dropdown-menu';
 import { useAppSelector, useAppDispatch } from '@/hooks';
 import { selectSelectedTask, fetchTasksAsync } from '@/lib/features/tasks/tasksSlice';
@@ -15,18 +16,18 @@ export function MenuItem({
   label,
   shortcut,
   className,
+  onClick,
 }: {
   Icon: LucideIcon;
   kind: Kind;
   label: string;
   shortcut: string;
   className?: string;
-  onClick?: () => void;
+  onClick?: (event: React.MouseEvent | React.KeyboardEvent) => void;
 }) {
   const selectedTask = useAppSelector(selectSelectedTask);
   const dispatch = useAppDispatch();
   const { setIsOpen } = useOpenDialogStore();
-
   const { user } = useAuth();
 
   const handleEdit = () => {
@@ -41,7 +42,11 @@ export function MenuItem({
     }
   };
 
-  const handleClick = async () => {
+  const handleClick = async (event: React.MouseEvent | React.KeyboardEvent) => {
+    if (typeof onClick === 'function') {
+      onClick(event);
+      return;
+    }
     await handleMenuItemClick(kind, selectedTask, fetchTasks, handleEdit, dispatch, user?.uid);
   };
 
