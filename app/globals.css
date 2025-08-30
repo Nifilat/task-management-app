@@ -143,15 +143,3 @@
     -webkit-line-clamp: 3;
   }
 }
-
-.lcp-optimized {
-  font-display: swap;
-  visibility: visible !important;
-  opacity: 1 !important;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .lcp-optimized {
-    transition: none;
-  }
-}
