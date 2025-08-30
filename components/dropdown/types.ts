@@ -35,3 +35,8 @@ export interface SubLabelMenuProps {
   onValueChange: (value: string) => void;
   onClickedLabelItem: (value: string) => void;
 }
+
+export interface TasksDropdownProps {
+  onOpen: () => void;
+  onClose: () => void;
+}
