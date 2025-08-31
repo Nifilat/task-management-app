@@ -1,8 +1,9 @@
 import { Metadata } from 'next';
+import dynamic from 'next/dynamic';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
-import Navbar from '@/components/navbar/Navbar';
-import StatsCard from '@/components/statsCard';
-import TasksArea from '@/components/taskarea/TasksArea';
+const Navbar = dynamic(() => import('@/components/navbar/Navbar'));
+const StatsCard = dynamic(() => import('@/components/statsCard'));
+const TasksArea = dynamic(() => import('@/components/taskarea/TasksArea'));
 
 export const metadata: Metadata = {
   title: 'Tasks',

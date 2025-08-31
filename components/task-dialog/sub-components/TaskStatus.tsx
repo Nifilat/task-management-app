@@ -16,7 +16,7 @@ export default function TaskStatus() {
 
   return (
     <div className="flex flex-col gap-2">
-      <Label className="opacity text-sm font-medium">Task Status</Label>
+      <Label className="opacity text-sm font-medium pl-1">Task Status</Label>
       <Controller
         name="status"
         defaultValue="Backlog"

@@ -1,5 +1,3 @@
-'use client';
-
 import { Priority, Status, Task } from '@/data/types';
 import {
   Timer,
@@ -23,10 +21,11 @@ import {
 import { Checkbox } from '../ui/checkbox';
 import { Badge } from '../ui/badge';
 import { TasksDropdown } from '../dropdown/TasksDropdown';
-import { priorityFilter, statusFilter, titleFilter } from '@/utils/tableFilters';
+import { priorityFilter, statusFilter } from '@/utils/tableFilters';
 import { useAppDispatch } from '@/hooks/useAppDispatch';
 import { setSelectedTask } from '@/lib/features/tasks/tasksSlice';
 import { formatDateString } from '@/utils/date';
+import { labelConfig } from '@/constants/shared';
 
 function renderStatusIcons(status: Status) {
   switch (status) {
@@ -89,7 +88,7 @@ const SortableHeader = ({ column, label }: SortableHeaderProps) => {
           <ArrowDown className="mr-2 h-4 w-4" />
           Desc
         </DropdownMenuItem>
-        {label !== 'Title' && (
+        {label !== 'Title' && label !== 'Task ID' && (
           <>
             <DropdownMenuSeparator />
             <DropdownMenuItem
@@ -136,9 +135,33 @@ export const tasksColumns: ColumnDef<Task>[] = [
     enableHiding: false,
   },
   {
+    id: 'taskId',
     accessorKey: 'taskId',
-    header: 'Task',
+    header: ({ column }) => <SortableHeader column={column} label="Task ID" />,
+    cell: ({ row }) => {
+      const taskId = row.original.taskId;
+      return <span className="font-mono text-sm">{taskId}</span>;
+    },
     enableSorting: true,
+
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      const getNumericPart = (id: string) => {
+        const match = id.match(/(\d+)$/);
+        return match ? parseInt(match[1], 10) : 0;
+      };
+
+      const numA = getNumericPart(a);
+      const numB = getNumericPart(b);
+
+      if (numA !== 0 && numB !== 0) {
+        return numA - numB;
+      }
+
+      return a.localeCompare(b);
+    },
   },
   {
     accessorKey: 'isFavorite',
@@ -155,14 +178,23 @@ export const tasksColumns: ColumnDef<Task>[] = [
     cell: ({ row }) => {
       const taskLabel = row.original.label;
       const taskTitle = row.original.title;
+      const labelColor = labelConfig[taskLabel]?.color;
+      const LabelIcon = labelConfig[taskLabel]?.icon;
+
       return (
         <div className="flex items-center gap-2">
-          <Badge variant={'outline'}>{taskLabel}</Badge>
+          <Badge
+            variant="outline"
+            className="flex items-center gap-1.5 px-2 py-1 text-xs font-medium border-current bg-current/5"
+            style={{ color: labelColor }}
+          >
+            {LabelIcon && <LabelIcon size={12} />}
+            {taskLabel}
+          </Badge>
           <span>{taskTitle}</span>
         </div>
       );
     },
-    filterFn: titleFilter,
     enableSorting: true,
   },
   {
@@ -196,6 +228,24 @@ export const tasksColumns: ColumnDef<Task>[] = [
     },
     filterFn: priorityFilter,
     enableSorting: true,
+  },
+  {
+    accessorKey: 'description',
+    header: ({ column }) => <SortableHeader column={column} label="Description" />,
+    cell: ({ row }) => {
+      const description = row.original.description;
+      if (!description) {
+        return <span className="text-muted-foreground text-sm">No description</span>;
+      }
+      return (
+        <div className="max-w-xs">
+          <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap break-words">
+            {description}
+          </p>
+        </div>
+      );
+    },
+    enableSorting: false,
   },
   {
     accessorKey: 'createdAt',

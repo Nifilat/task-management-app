@@ -30,14 +30,14 @@ const SessionWarningModal: React.FC<SessionWarningModalProps> = ({
             <AlertDialogTitle>Session Timeout Warning</AlertDialogTitle>
           </div>
           <AlertDialogDescription className="space-y-2">
-            <p>Your session has been inactive for a while.</p>
+            <span>Your session has been inactive for a while.</span>
             <span className="flex items-center gap-2 text-sm font-medium">
               <Clock className="h-4 w-4" />
               <span>Time remaining: {formatTime(timeRemaining)}</span>
             </span>
-            <p className="text-sm text-muted-foreground">
+            <span className="text-sm text-muted-foreground">
               You will be automatically logged out when the timer reaches zero.
-            </p>
+            </span>
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter className="flex gap-2">

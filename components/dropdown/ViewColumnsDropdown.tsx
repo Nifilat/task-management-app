@@ -15,7 +15,7 @@ import { selectAllTasks } from '@/lib/features/tasks/tasksSlice';
 const ViewColumnsDropDown = ({ table }: { table: Table<Task> }) => {
   const tasks = useAppSelector(selectAllTasks);
 
-  const columnsToHide = ['priority', 'status', 'createdAt'];
+  const columnsToHide = ['description', 'priority', 'status', 'createdAt'];
 
   return (
     <DropdownMenu>

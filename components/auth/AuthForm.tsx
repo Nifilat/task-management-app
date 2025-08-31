@@ -41,12 +41,13 @@ const AuthForm: React.FC<AuthFormProps> = ({
               name={gridField.name}
               render={({ field: formField }) => (
                 <FormItem>
-                  <FormLabel>{gridField.label}</FormLabel>
+                  <FormLabel className="pl-1">{gridField.label}</FormLabel>
                   <FormControl>
                     <Input
                       {...formField}
                       type={gridField.type}
                       placeholder={gridField.placeholder}
+                      className="h-11 px-4 py-3"
                     />
                   </FormControl>
                   <FormMessage />
@@ -69,9 +70,14 @@ const AuthForm: React.FC<AuthFormProps> = ({
         name={field.name}
         render={({ field: formField }) => (
           <FormItem>
-            <FormLabel>{field.label}</FormLabel>
+            <FormLabel className="pl-1">{field.label}</FormLabel>
             <FormControl>
-              <Input {...formField} type={field.type} placeholder={field.placeholder} />
+              <Input
+                {...formField}
+                type={field.type}
+                placeholder={field.placeholder}
+                className="h-11 px-4 py-3"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -120,10 +126,8 @@ const AuthForm: React.FC<AuthFormProps> = ({
           {/* Dynamic Fields */}
           {config.fields.map((field, index) => renderField(field, index))}
 
-          {/* Error Display */}
           {error && <div className="text-destructive text-sm text-center">{error}</div>}
 
-          {/* Submit Button */}
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? config.loadingText : config.submitText}
           </Button>

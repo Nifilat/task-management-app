@@ -1,6 +1,4 @@
-'use client';
-
-import { LucideEllipsis, Trash } from 'lucide-react';
+import { LucideEllipsis, Trash, MoreHorizontal } from 'lucide-react';
 import { Button } from '../ui/button';
 import {
   DropdownMenu,
@@ -17,17 +15,16 @@ import { toast } from 'sonner';
 import { MENU_ITEMS } from './constants';
 import { MenuItem } from './MenuItems';
 import { SubLabelMenu } from './SubLabelMenu';
-import { MoreHorizontal } from 'lucide-react';
-import { deleteTask, toggleFavorite, setSelectedTask } from '@/lib/features/tasks/tasksSlice';
+import { deleteTask } from '@/lib/features/tasks/tasksSlice';
 import { useAuth } from '@/hooks/useAuth';
 import type { Task } from '@/data/types';
-
-interface TasksDropdownProps {
-  onOpen: () => void;
-  onClose: () => void;
-}
+import DeleteTaskDialog from '../task-dialog/DeleteTaskDialog';
+import type { TasksDropdownProps } from './types';
 
 export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
+  const [deleting, setDeleting] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState<Label>('Bug');
   const selectedTask = useAppSelector(selectSelectedTask);
   const dispatch = useAppDispatch();
@@ -90,76 +87,82 @@ export function TasksDropdown({ onOpen, onClose }: TasksDropdownProps) {
     }
   };
 
-  const handleToggleFavorite = (task: Task) => {
+  const handleDeleteConfirm = async (taskId: string) => {
     if (user) {
-      dispatch(
-        toggleFavorite({ taskId: task.taskId, isFavorite: !task.isFavorite, userId: user.uid })
-      );
+      try {
+        setDeleting(true);
+        await dispatch(deleteTask({ taskId, userId: user.uid }));
+        toast.success('Task deleted successfully');
+      } catch {
+        toast.error('Failed to delete task');
+      } finally {
+        setDeleting(false);
+      }
     }
   };
 
-  const handleDelete = (task: Task) => {
-    if (user) {
-      dispatch(deleteTask({ taskId: task.taskId, userId: user.uid }));
+  const handleDeleteClick = () => {
+    if (selectedTask) {
+      setTaskToDelete(selectedTask);
+      setShowDeleteModal(true);
     }
-    onClose();
-  };
-
-  const handleEdit = (task: Task) => {
-    dispatch(setSelectedTask(task));
-    onClose();
   };
 
   return (
-    <DropdownMenu onOpenChange={(open: boolean) => (open ? onOpen() : onClose())}>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost">
-          {selectedTask ? <LucideEllipsis /> : <MoreHorizontal className="h-4 w-4" />}
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56">
-        {selectedTask && (
-          <DropdownMenuGroup>
-            {menuItemsArray.map(item => (
-              <MenuItem
-                key={item.label}
-                kind={item.kind}
-                Icon={item.icon}
-                label={item.label}
-                shortcut={item.shortcut}
-                onClick={() => {
-                  if (item.kind === 'edit') {
-                    handleEdit(selectedTask);
-                  } else if (item.kind === 'favorite') {
-                    handleToggleFavorite(selectedTask);
-                  }
-                }}
-              />
-            ))}
-          </DropdownMenuGroup>
-        )}
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuGroup>
+    <>
+      <DropdownMenu onOpenChange={(open: boolean) => (open ? onOpen() : onClose())}>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost">
+            {selectedTask ? <LucideEllipsis /> : <MoreHorizontal className="h-4 w-4" />}
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
           {selectedTask && (
-            <SubLabelMenu
-              onClickedLabelItem={clickedLabelItem}
-              value={selectedLabel}
-              onValueChange={(value: string) => setSelectedLabel(value as Label)}
-            />
+            <DropdownMenuGroup>
+              {menuItemsArray.map(item => (
+                <MenuItem
+                  key={item.label}
+                  kind={item.kind}
+                  Icon={item.icon}
+                  label={item.label}
+                  shortcut={item.shortcut}
+                  // Only pass onClick for delete action to show modal
+                  onClick={item.kind === 'delete' ? handleDeleteClick : undefined}
+                />
+              ))}
+            </DropdownMenuGroup>
           )}
+
           <DropdownMenuSeparator />
-          <MenuItem
-            Icon={Trash}
-            kind="delete"
-            label="Delete"
-            shortcut="⇧⌘Q"
-            className="text-red-500"
-            onClick={() => handleDelete(selectedTask as Task)}
-          />
-        </DropdownMenuGroup>
-      </DropdownMenuContent>
-    </DropdownMenu>
+
+          <DropdownMenuGroup>
+            {selectedTask && (
+              <SubLabelMenu
+                onClickedLabelItem={clickedLabelItem}
+                value={selectedLabel}
+                onValueChange={(value: string) => setSelectedLabel(value as Label)}
+              />
+            )}
+            <DropdownMenuSeparator />
+            <MenuItem
+              Icon={Trash}
+              kind="delete"
+              label="Delete"
+              shortcut="⇧⌘Q"
+              className="text-red-500"
+              onClick={handleDeleteClick}
+            />
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      <DeleteTaskDialog
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        task={taskToDelete}
+        onConfirmDelete={handleDeleteConfirm}
+        loading={deleting}
+      />
+    </>
   );
 }

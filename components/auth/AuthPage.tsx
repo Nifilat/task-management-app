@@ -138,7 +138,7 @@ const AuthPage: React.FC = () => {
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">Task Manager</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl font-bold text-center">Task Manager</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full" onValueChange={handleTabChange}>

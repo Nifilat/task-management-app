@@ -1,3 +1,4 @@
+// SubLabelMenu.tsx
 import {
   DropdownMenuPortal,
   DropdownMenuRadioGroup,
@@ -7,13 +8,12 @@ import {
   DropdownMenuSubTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Tag } from 'lucide-react';
-import { labels } from '@/constants/shared';
+import { labelConfig } from '@/constants/shared';
 import { SubLabelMenuProps } from './types';
 
 export function SubLabelMenu({ value, onValueChange, onClickedLabelItem }: SubLabelMenuProps) {
   const handleValueChange = (newValue: string) => {
     onValueChange(newValue);
-
     onClickedLabelItem(newValue);
   };
 
@@ -26,11 +26,21 @@ export function SubLabelMenu({ value, onValueChange, onClickedLabelItem }: SubLa
       <DropdownMenuPortal>
         <DropdownMenuSubContent>
           <DropdownMenuRadioGroup value={value} onValueChange={handleValueChange}>
-            {labels.map(option => (
-              <DropdownMenuRadioItem key={option} value={option}>
-                {option}
-              </DropdownMenuRadioItem>
-            ))}
+            {Object.values(labelConfig).map(labelOption => {
+              const Icon = labelOption.icon;
+              return (
+                <DropdownMenuRadioItem key={labelOption.value} value={labelOption.value}>
+                  <div className="flex items-center gap-2 w-full">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: labelOption.color }}
+                    />
+                    <Icon size={16} style={{ color: labelOption.color }} />
+                    <span>{labelOption.label}</span>
+                  </div>
+                </DropdownMenuRadioItem>
+              );
+            })}
           </DropdownMenuRadioGroup>
         </DropdownMenuSubContent>
       </DropdownMenuPortal>

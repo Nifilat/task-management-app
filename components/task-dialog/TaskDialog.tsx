@@ -17,6 +17,7 @@ import TaskLabel from './sub-components/TaskLabel';
 import TaskPriority from './sub-components/TaskPriority';
 import TaskStatus from './sub-components/TaskStatus';
 import TaskTitle from './sub-components/TaskTitle';
+import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
 
 import { FormProvider, useForm } from 'react-hook-form';
@@ -42,6 +43,7 @@ export default function TaskDialog() {
       status: 'Backlog',
       priority: 'Low',
       label: 'Bug',
+      description: '',
     },
   });
 
@@ -59,6 +61,7 @@ export default function TaskDialog() {
         status: taskToEdit.status,
         priority: taskToEdit.priority,
         label: taskToEdit.label,
+        description: taskToEdit.description || '',
       });
     } else {
       reset({
@@ -66,6 +69,7 @@ export default function TaskDialog() {
         status: 'Backlog',
         priority: 'Low',
         label: 'Bug',
+        description: '',
       });
     }
   }, [taskToEdit, reset]);
@@ -91,7 +95,6 @@ export default function TaskDialog() {
           { description: result.message }
         );
       } else {
-        // Use TaskInput type which excludes taskId, createdAt, and updatedAt
         const newTask: TaskInput = {
           ...data,
           isFavorite: false,
@@ -113,17 +116,15 @@ export default function TaskDialog() {
     }
   };
 
+  const handleOpenChange = (open: boolean) => {
+    setIsOpen(open, 'create', null);
+  };
+
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={open => {
-        setIsOpen(open, 'create', null);
-      }}
-    >
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       {/* Desktop Add Task Button */}
-      <DialogTrigger asChild>
+      <DialogTrigger asChild className="hidden md:inline-flex">
         <Button
-          className="hidden md:inline-flex"
           onClick={() => {
             dispatch(setSelectedTask(null));
             setIsOpen(true);
@@ -133,11 +134,11 @@ export default function TaskDialog() {
         </Button>
       </DialogTrigger>
 
-      {/* Mobile Plus Icon Button */}
-      <DialogTrigger asChild>
+      {/* Mobile FAB */}
+      <DialogTrigger asChild className="md:hidden">
         <button
-          aria-label="Add task"
-          className="inline-flex md:hidden fixed bottom-4 right-4 z-50 p-3 rounded-full bg-primary text-white shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+          aria-label="Add new task"
+          className="fixed bottom-6 right-6 z-40 p-4 rounded-full bg-primary text-primary-foreground shadow-lg hover:bg-primary/90 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 hover:scale-105 active:scale-95"
           onClick={() => {
             dispatch(setSelectedTask(null));
             setIsOpen(true);
@@ -147,7 +148,12 @@ export default function TaskDialog() {
         </button>
       </DialogTrigger>
 
-      <DialogContent className="max-w-4xl">
+      <DialogContent
+        className="max-w-4xl max-h-[90vh] overflow-y-auto"
+        onOpenAutoFocus={e => {
+          e.preventDefault();
+        }}
+      >
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edit Task' : 'Add New Task'}</DialogTitle>
           <DialogDescription>
@@ -158,13 +164,28 @@ export default function TaskDialog() {
 
         <FormProvider {...methods}>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="my-8 grid grid-cols-2 gap-5">
-              <TaskTitle />
+            <div className="my-8 grid grid-cols-1 md:grid-cols-2 gap-5">
+              <div className="md:col-span-2">
+                <TaskTitle />
+              </div>
               <TaskStatus />
               <TaskPriority />
               <TaskLabel />
+              <div className="md:col-span-2">
+                <div className="flex flex-col gap-2">
+                  <label className="opacity-75 text-sm font-medium pl-1" htmlFor="task-description">
+                    Task Description
+                  </label>
+                  <Textarea
+                    id="task-description"
+                    placeholder="Add more details..."
+                    className="min-h-28 px-4 py-3"
+                    {...methods.register('description')}
+                  />
+                </div>
+              </div>
             </div>
-            <DialogFooter>
+            <DialogFooter className="flex flex-col-reverse sm:flex-row gap-2">
               <DialogClose asChild>
                 <Button type="button" variant="secondary">
                   Close

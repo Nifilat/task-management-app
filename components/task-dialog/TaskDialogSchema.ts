@@ -5,6 +5,7 @@ export const taskFormSchema = z.object({
   status: z.enum(['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled']),
   priority: z.enum(['Low', 'Medium', 'High']),
   label: z.enum(['Bug', 'Feature', 'Documentation', 'Testing', 'Deployment', 'Refactoring']),
+  description: z.string().max(1000, 'Description is too long').default(''),
 });
 
-export type TaskFormData = z.infer<typeof taskFormSchema>;
+export type TaskFormData = z.input<typeof taskFormSchema>;
