@@ -174,7 +174,7 @@ export default function TaskDialog() {
               <div className="md:col-span-2">
                 <div className="flex flex-col gap-2">
                   <label className="opacity-75 text-sm font-medium pl-1" htmlFor="task-description">
-                    Description
+                    Task Description
                   </label>
                   <Textarea
                     id="task-description"
